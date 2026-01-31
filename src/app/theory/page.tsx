@@ -13,7 +13,7 @@ interface MapNode {
   description: string;
   keyIdeas: string[];
   status: 'written' | 'in-progress' | 'planned';
-  essaySlug?: string;
+  externalUrl?: string;
 }
 
 const journeyMap: MapNode[] = [
@@ -70,7 +70,7 @@ const journeyMap: MapNode[] = [
     description: 'Why does it feel like something to be you? Consciousness as evolution\'s solution for extended cognition.',
     keyIdeas: ['The hard problem', 'Qualia as meaning', 'Why evolution chose consciousness'],
     status: 'written',
-    essaySlug: 'consciousness',
+    externalUrl: 'https://joeyo4.substack.com',
   },
   {
     id: 'meaning',
@@ -222,13 +222,15 @@ export default function TheoryPage() {
                               </span>
                             ))}
                           </div>
-                          {node.essaySlug && (
-                            <Link
-                              href={`/?essay=${node.essaySlug}`}
+                          {node.externalUrl && (
+                            <a
+                              href={node.externalUrl}
+                              target="_blank"
+                              rel="noopener noreferrer"
                               className="text-sm text-[var(--foreground)] hover:underline"
                             >
                               Read the essay →
-                            </Link>
+                            </a>
                           )}
                         </div>
                       </motion.div>
