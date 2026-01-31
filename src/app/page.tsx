@@ -36,7 +36,7 @@ export default function Home() {
               <h1 className="text-3xl md:text-4xl font-medium text-[var(--foreground)] mb-3">
                 Joseph Orsborn
               </h1>
-              <p className="text-[var(--muted)] text-lg max-w-xl">
+              <p className="text-[var(--muted)] text-lg max-w-xl mb-4">
                 Founder of{' '}
                 <a
                   href="https://lilypadlearning.com"
@@ -48,6 +48,14 @@ export default function Home() {
                 </a>
                 . Writing about consciousness, technology, and building things that matter.
               </p>
+              <a
+                href="/theory"
+                className="inline-flex items-center gap-2 text-sm font-mono px-4 py-2 border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] hover:border-[var(--muted)] transition-colors"
+              >
+                <span>✨</span>
+                <span>Explore: The Conscious Machine</span>
+                <span>→</span>
+              </a>
             </motion.div>
             <ThemeToggle />
           </div>
