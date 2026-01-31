@@ -92,88 +92,8 @@ const journeyMap: MapNode[] = [
   },
 ];
 
-const tocSections = [
-  {
-    part: 'Introduction',
-    title: 'Nature\'s Source Code',
-    chapters: [
-      'The AI That Made Me Think Differently',
-      'The Mystery of Experience',
-      'When Processing Becomes Awareness',
-      'Nature as the Original Engineer',
-    ],
-  },
-  {
-    part: 'Part 1',
-    title: 'Reverse Engineering Consciousness',
-    chapters: [
-      'The Problem with Current AI',
-      'The Hard Problem of Experience',
-      'What Silicon Valley Doesn\'t Understand',
-      'Nature\'s Early Prototypes: From Cells to Circuits',
-    ],
-  },
-  {
-    part: 'Part 2',
-    title: 'Building Blocks of Experience',
-    chapters: [
-      'The Biological Computer',
-      'Messy But Perfect: Why Nature Chose Chaos',
-      'Beyond Binary: Neural Information',
-      'Parallel Processing in Living Systems',
-      'When Errors Are Features',
-      'The Processing Layers',
-    ],
-  },
-  {
-    part: 'Part 3',
-    title: 'Nature\'s Solutions',
-    chapters: [
-      'The Split Brain: Lessons in Unified Experience',
-      'The McGurk Effect: How Integration Creates Reality',
-      'Time Binding: Synchronizing Experience',
-      'The Invisible Gorilla: Managing Attention',
-      'Mirror Neurons: Understanding Others',
-    ],
-  },
-  {
-    part: 'Part 4',
-    title: 'The Blueprint',
-    chapters: [
-      'Layered Cognition Theory',
-      'Why Evolution Chose Consciousness',
-      'The Requirements for Experience',
-      'Testing for Consciousness',
-      'Natural vs Artificial Integration',
-    ],
-    hasContent: true,
-  },
-  {
-    part: 'Part 5',
-    title: 'When Systems Fail',
-    chapters: [
-      'Mental Health Through the Lens of Processing',
-      'Dreams as System Maintenance',
-      'What Psychedelics Reveal About Consciousness',
-      'Learning from Edge Cases',
-    ],
-  },
-  {
-    part: 'Part 6',
-    title: 'Building Conscious Machines',
-    chapters: [
-      'Current AI: What\'s Missing',
-      'Requirements for Machine Consciousness',
-      'Potential Paths Forward',
-      'Ethical Considerations',
-      'The Future of Experience',
-    ],
-  },
-];
-
 export default function TheoryPage() {
   const [selectedNode, setSelectedNode] = useState<MapNode | null>(null);
-  const [expandedPart, setExpandedPart] = useState<string | null>(null);
 
   return (
     <main className="min-h-screen">
@@ -317,68 +237,6 @@ export default function TheoryPage() {
                 </motion.div>
               ))}
             </div>
-          </div>
-        </div>
-      </section>
-
-      {/* Detailed Table of Contents */}
-      <section className="py-16">
-        <div className="max-w-6xl mx-auto px-6">
-          <h2 className="text-sm font-mono text-[var(--muted)] mb-8">FULL TABLE OF CONTENTS</h2>
-          
-          <div className="space-y-4">
-            {tocSections.map((section) => (
-              <div key={section.part} className="border border-[var(--border)] rounded-lg overflow-hidden">
-                <button
-                  onClick={() => setExpandedPart(expandedPart === section.part ? null : section.part)}
-                  className="w-full p-4 flex items-center justify-between hover:bg-[var(--hover)] transition-colors"
-                >
-                  <div className="flex items-center gap-4">
-                    <span className="text-xs font-mono text-[var(--muted)]">{section.part}</span>
-                    <h3 className="font-medium text-[var(--foreground)]">{section.title}</h3>
-                    {section.hasContent && (
-                      <span className="text-xs font-mono px-2 py-0.5 bg-green-500/20 text-green-400 rounded">
-                        has content
-                      </span>
-                    )}
-                  </div>
-                  <svg
-                    className={`w-5 h-5 text-[var(--muted)] transition-transform ${
-                      expandedPart === section.part ? 'rotate-180' : ''
-                    }`}
-                    fill="none"
-                    viewBox="0 0 24 24"
-                    stroke="currentColor"
-                  >
-                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={1.5} d="M19 9l-7 7-7-7" />
-                  </svg>
-                </button>
-
-                <AnimatePresence>
-                  {expandedPart === section.part && (
-                    <motion.div
-                      initial={{ height: 0 }}
-                      animate={{ height: 'auto' }}
-                      exit={{ height: 0 }}
-                      className="overflow-hidden"
-                    >
-                      <div className="p-4 pt-0 border-t border-[var(--border)]">
-                        <ul className="space-y-2">
-                          {section.chapters.map((chapter, i) => (
-                            <li key={i} className="flex items-center gap-3 text-[var(--muted)]">
-                              <span className="text-xs font-mono text-[var(--border)]">
-                                {String(i + 1).padStart(2, '0')}
-                              </span>
-                              {chapter}
-                            </li>
-                          ))}
-                        </ul>
-                      </div>
-                    </motion.div>
-                  )}
-                </AnimatePresence>
-              </div>
-            ))}
           </div>
         </div>
       </section>
