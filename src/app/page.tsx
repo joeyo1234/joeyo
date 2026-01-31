@@ -110,7 +110,13 @@ export default function Home() {
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.3, delay: index * 0.05 }}
-              onClick={() => setSelectedEssay(essay)}
+              onClick={() => {
+                if (essay.externalUrl) {
+                  window.open(essay.externalUrl, '_blank', 'noopener,noreferrer');
+                } else {
+                  setSelectedEssay(essay);
+                }
+              }}
               className="w-full grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 py-5 md:py-4 text-left group hover:bg-[var(--hover)] transition-colors -mx-4 px-4 rounded"
             >
               {/* Title & Description */}
@@ -136,11 +142,16 @@ export default function Home() {
               </div>
 
               {/* Date */}
-              <div className="md:col-span-3 text-sm font-mono text-[var(--muted)] md:text-right">
+              <div className="md:col-span-3 text-sm font-mono text-[var(--muted)] md:text-right flex items-center justify-end gap-2">
                 {new Date(essay.date).toLocaleDateString('en-US', {
                   year: 'numeric',
                   month: 'short',
                 })}
+                {essay.externalUrl && (
+                  <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                    <path d="M3.5 3.5h5v5M8.5 3.5L3.5 8.5" />
+                  </svg>
+                )}
               </div>
             </motion.button>
           ))}

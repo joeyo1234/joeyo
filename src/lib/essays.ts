@@ -11,6 +11,7 @@ export interface Essay {
   date: string;
   tags: string[];
   featured?: boolean;
+  externalUrl?: string;
   content: string;
 }
 
@@ -31,6 +32,7 @@ export function getAllEssays(): Essay[] {
         date: data.date,
         tags: data.tags || [],
         featured: data.featured || false,
+        externalUrl: data.externalUrl || undefined,
         content,
       };
     })
