@@ -26,20 +26,20 @@ export default function Home() {
     <main className="min-h-screen">
       {/* Header */}
       <header className="border-b border-[var(--border)]">
-        <div className="max-w-6xl mx-auto px-8 py-16 md:py-24">
+        <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
           <div className="flex items-start justify-between">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-2xl md:text-3xl font-medium text-[var(--foreground)] mb-2">
+              <h1 className="text-2xl md:text-3xl font-medium text-[var(--foreground)] mb-4">
                 Joseph Orsborn
               </h1>
-              <p className="text-[var(--muted)] text-base max-w-xl mb-1">
+              <p className="text-[var(--muted)] text-base max-w-xl mb-2">
                 Exploring the architecture of mind and meaning.
               </p>
-              <p className="text-[var(--muted)] text-base mb-4">
+              <p className="text-[var(--muted)] text-base mb-6">
                 Building{' '}
                 <a
                   href="https://lilypadlearning.com"
