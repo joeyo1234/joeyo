@@ -23,7 +23,7 @@ export default function Home() {
     : essays;
 
   return (
-    <main className="min-h-screen flex flex-col">
+    <main className="min-h-screen">
       {/* Header */}
       <header className="border-b border-[var(--border)]">
         <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
@@ -178,7 +178,7 @@ export default function Home() {
       </div>
 
       {/* Footer */}
-      <footer className="mt-auto border-t border-[var(--border)]">
+      <footer className="mt-20 border-t border-[var(--border)]">
         <div className="max-w-6xl mx-auto px-6 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[var(--muted)]">
             <div className="flex items-center gap-4">
