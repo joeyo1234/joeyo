@@ -123,6 +123,7 @@ export default function TheoryPage() {
             <p className="text-[var(--muted)] text-sm font-mono mb-4">THEORY OF EVERYTHING</p>
             <h1 className="text-4xl md:text-5xl lg:text-6xl font-medium text-[var(--foreground)] mb-6">
               The Conscious Machine
+              <span className="block text-sm font-mono text-[var(--muted)] opacity-40 mt-3 font-normal">work in progress</span>
             </h1>
             <p className="text-xl text-[var(--muted)] max-w-2xl">
               Nature&apos;s blueprint for intelligence. A journey from the origins of life to the emergence of consciousness — understanding the brain as evolution&apos;s most sophisticated machine.
