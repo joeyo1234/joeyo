@@ -39,7 +39,7 @@ export default function Home() {
               <p className="text-[var(--muted)] text-base max-w-xl mb-2">
                 Exploring the architecture of mind and meaning.
               </p>
-              <p className="text-[var(--muted)] text-base mb-6">
+              <p className="text-[var(--muted)] text-base">
                 Building{' '}
                 <a
                   href="https://lilypadlearning.com"
@@ -51,24 +51,6 @@ export default function Home() {
                 </a>
                 .
               </p>
-              <div className="flex flex-wrap gap-3">
-                <a
-                  href="/theory"
-                  className="inline-flex items-center gap-2 text-sm font-mono px-4 py-2 border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] hover:border-[var(--muted)] transition-colors"
-                >
-                  <span>✨</span>
-                  <span>Explore: The Conscious Machine</span>
-                  <span>→</span>
-                </a>
-                <a
-                  href="/brain"
-                  className="inline-flex items-center gap-2 text-sm font-mono px-4 py-2 border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] hover:border-[var(--muted)] transition-colors"
-                >
-                  <span>🧠</span>
-                  <span>Interactive: Brain Architecture</span>
-                  <span>→</span>
-                </a>
-              </div>
             </motion.div>
             <ThemeToggle />
           </div>
@@ -107,7 +89,7 @@ export default function Home() {
       </div>
 
       {/* Essays Index */}
-      <div className="max-w-6xl mx-auto px-6 min-h-[40vh]">
+      <div className="max-w-6xl mx-auto px-6 min-h-[35vh]">
         {/* Table Header */}
         <div className="hidden md:grid grid-cols-12 gap-4 py-3 text-xs font-mono text-[var(--muted)] uppercase tracking-wider border-b border-[var(--border)]">
           <div className="col-span-6">Title</div>
@@ -115,8 +97,46 @@ export default function Home() {
           <div className="col-span-3 text-right">Date</div>
         </div>
 
-        {/* Essay Rows */}
-        <div className="divide-y divide-[var(--border)]" style={{ opacity: 0.5, borderColor: 'var(--border)' }}>
+        {/* Pinned items + Essay Rows */}
+        <div className="divide-y divide-[var(--border)]">
+          {/* Pinned: interactive pages */}
+          {!filter && (
+            <>
+              <a
+                href="/theory"
+                className="w-full grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 py-5 md:py-4 text-left group hover:bg-[var(--hover)] transition-colors -mx-4 px-4 rounded"
+              >
+                <div className="md:col-span-6">
+                  <h3 className="text-[var(--foreground)] font-medium group-hover:opacity-80 transition-opacity">
+                    The Conscious Machine
+                  </h3>
+                </div>
+                <div className="md:col-span-3 flex items-center gap-2">
+                  <span className="text-xs font-mono text-[var(--muted)]">theory</span>
+                </div>
+                <div className="md:col-span-3 text-sm font-mono text-[var(--muted)] md:text-right flex items-center justify-end gap-2">
+                  interactive
+                </div>
+              </a>
+              <a
+                href="/brain"
+                className="w-full grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 py-5 md:py-4 text-left group hover:bg-[var(--hover)] transition-colors -mx-4 px-4 rounded"
+              >
+                <div className="md:col-span-6">
+                  <h3 className="text-[var(--foreground)] font-medium group-hover:opacity-80 transition-opacity">
+                    Cognitive Systems Architecture
+                  </h3>
+                </div>
+                <div className="md:col-span-3 flex items-center gap-2">
+                  <span className="text-xs font-mono text-[var(--muted)]">neuroscience</span>
+                </div>
+                <div className="md:col-span-3 text-sm font-mono text-[var(--muted)] md:text-right flex items-center justify-end gap-2">
+                  interactive
+                </div>
+              </a>
+            </>
+          )}
+          {/* Essays */}
           {filteredEssays.map((essay, index) => (
             <motion.button
               key={essay.slug}
