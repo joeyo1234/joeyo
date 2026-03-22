@@ -45,7 +45,7 @@ export default function BrainPage() {
             html.scrollHeight,
             html.offsetHeight
           );
-          if (height > 100) setIframeHeight(height - 500);
+          if (height > 100) setIframeHeight(height - 200);
         }
       } catch { /* cross-origin safety */ }
     };
