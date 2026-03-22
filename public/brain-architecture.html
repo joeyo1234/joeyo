@@ -1405,8 +1405,8 @@ Object.entries(modules).forEach(([key, mod]) => {
   el.addEventListener('click', (e) => {
     e.stopPropagation();
     if (!activeTask) {
-      // No task active → select this brain region (same as clicking brain area)
-      selectBrainRegion(key);
+      // No task active → select this brain region and expand the module
+      selectBrainRegion(key, 'module');
       return;
     }
     // Task is active → toggle expand for detail
@@ -1991,7 +1991,8 @@ const brainRegionDetails = {
 };
 
 // ── Shared function: select a brain region by module ID ──
-function selectBrainRegion(modId) {
+function selectBrainRegion(modId, source) {
+  // source: 'module' = clicked from flow diagram, 'brain'/'legend' = clicked from brain area or legend
   if (selectedBrainRegion === modId) {
     clearBrainRegionSelection();
     return;
@@ -1999,7 +2000,6 @@ function selectBrainRegion(modId) {
   if (activeTask) deactivateAll();
   selectedBrainRegion = modId;
 
-  // Highlight this region + corresponding module above (slight scale, NOT fully expanded)
   updateBrainHighlights([modId]);
   const modEl = document.getElementById(`mod-${modId}`);
   if (modEl) {
@@ -2009,7 +2009,10 @@ function selectBrainRegion(modId) {
       else m.classList.remove('dimmed');
     });
     modEl.classList.add('active');
-    // Active state gives slight scale-up + glow, but NOT expanded (no desc revealed)
+    // If clicked from the flow diagram module, expand it to show description
+    if (source === 'module') {
+      modEl.classList.add('expanded');
+    }
   }
   highlightModuleConnections(modId, true);
 
@@ -2019,9 +2022,6 @@ function selectBrainRegion(modId) {
   });
 
   showBrainRegionDetail(modId);
-
-  // Scroll info panel into view
-  document.getElementById('infoCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
 }
 
 // Brain SVG region click + hover
