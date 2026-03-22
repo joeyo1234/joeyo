@@ -107,7 +107,7 @@ export default function Home() {
       </div>
 
       {/* Essays Index */}
-      <div className="max-w-6xl mx-auto px-6 min-h-[50vh]">
+      <div className="max-w-6xl mx-auto px-6 min-h-[40vh]">
         {/* Table Header */}
         <div className="hidden md:grid grid-cols-12 gap-4 py-3 text-xs font-mono text-[var(--muted)] uppercase tracking-wider border-b border-[var(--border)]">
           <div className="col-span-6">Title</div>
