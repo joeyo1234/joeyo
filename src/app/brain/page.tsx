@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function BrainPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [iframeHeight, setIframeHeight] = useState(2400);
 
   // Sync theme changes into the iframe
   useEffect(() => {
@@ -26,6 +27,35 @@ export default function BrainPage() {
       iframe?.removeEventListener('load', syncTheme);
       observer.disconnect();
     };
+  }, []);
+
+  // Auto-resize iframe to match content height
+  useEffect(() => {
+    const iframe = iframeRef.current;
+    if (!iframe) return;
+
+    const resizeIframe = () => {
+      try {
+        const body = iframe.contentDocument?.body;
+        const html = iframe.contentDocument?.documentElement;
+        if (body && html) {
+          const height = Math.max(
+            body.scrollHeight,
+            body.offsetHeight,
+            html.scrollHeight,
+            html.offsetHeight
+          );
+          if (height > 100) setIframeHeight(height);
+        }
+      } catch { /* cross-origin safety */ }
+    };
+
+    iframe.addEventListener('load', () => {
+      resizeIframe();
+      // Re-check periodically as content may change (expanding modules etc)
+      const interval = setInterval(resizeIframe, 1000);
+      setTimeout(() => clearInterval(interval), 30000);
+    });
   }, []);
 
   return (
@@ -62,8 +92,9 @@ export default function BrainPage() {
         ref={iframeRef}
         src="/brain-architecture.html"
         className="w-full border-0"
-        style={{ height: '4000px' }}
+        style={{ height: `${iframeHeight}px` }}
         title="Cognitive Systems Architecture"
+        scrolling="no"
       />
     </main>
   );
