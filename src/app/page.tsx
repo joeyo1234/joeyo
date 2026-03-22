@@ -37,7 +37,7 @@ export default function Home() {
                 Joseph Orsborn
               </h1>
               <p className="text-[var(--muted)] text-lg max-w-xl mb-4">
-                Founder of{' '}
+                Building{' '}
                 <a
                   href="https://lilypadlearning.com"
                   target="_blank"
@@ -46,7 +46,7 @@ export default function Home() {
                 >
                   Lilypad Learning
                 </a>
-                . Writing about consciousness, technology, and building things that matter.
+                . Thinking out loud about brains, machines, and the stuff in between.
               </p>
               <div className="flex flex-wrap gap-3">
                 <a
