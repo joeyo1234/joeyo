@@ -36,8 +36,11 @@ export default function Home() {
               <h1 className="text-3xl md:text-4xl font-medium text-[var(--foreground)] mb-3">
                 Joseph Orsborn
               </h1>
-              <p className="text-[var(--muted)] text-lg max-w-xl mb-4">
-                Exploring the architecture of mind and meaning. Building{' '}
+              <p className="text-[var(--muted)] text-lg max-w-xl mb-1">
+                Exploring the architecture of mind and meaning.
+              </p>
+              <p className="text-[var(--muted)] text-sm mb-4">
+                Building{' '}
                 <a
                   href="https://lilypadlearning.com"
                   target="_blank"
