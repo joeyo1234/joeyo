@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function BrainPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [iframeHeight, setIframeHeight] = useState(2400);
+  const [iframeHeight, setIframeHeight] = useState(2200);
 
   // Sync theme changes into the iframe
   useEffect(() => {
@@ -45,7 +45,7 @@ export default function BrainPage() {
             html.scrollHeight,
             html.offsetHeight
           );
-          if (height > 100) setIframeHeight(height);
+          if (height > 100) setIframeHeight(height - 200);
         }
       } catch { /* cross-origin safety */ }
     };

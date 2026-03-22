@@ -33,13 +33,13 @@ export default function Home() {
               animate={{ opacity: 1, y: 0 }}
               transition={{ duration: 0.5 }}
             >
-              <h1 className="text-3xl md:text-4xl font-medium text-[var(--foreground)] mb-3">
+              <h1 className="text-2xl md:text-3xl font-medium text-[var(--foreground)] mb-2">
                 Joseph Orsborn
               </h1>
-              <p className="text-[var(--muted)] text-lg max-w-xl mb-1">
+              <p className="text-[var(--muted)] text-base max-w-xl mb-1">
                 Exploring the architecture of mind and meaning.
               </p>
-              <p className="text-[var(--muted)] text-sm mb-4">
+              <p className="text-[var(--muted)] text-xs mb-4">
                 Building{' '}
                 <a
                   href="https://lilypadlearning.com"
