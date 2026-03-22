@@ -1,0 +1,2383 @@
+<!DOCTYPE html>
+<html lang="en" data-theme="light">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cognitive Systems Architecture</title>
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@300;400;500;600&family=IBM+Plex+Sans:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+<style>
+/* ═══════════════════════════════════════════════════
+   THEME SYSTEM
+   ═══════════════════════════════════════════════════ */
+:root {
+  --background: hsl(0 0% 100%);
+  --foreground: hsl(222.2 47.4% 11.2%);
+  --card: hsl(0 0% 100%);
+  --card-foreground: hsl(222.2 47.4% 11.2%);
+  --muted: hsl(210 40% 96.1%);
+  --muted-foreground: hsl(215.4 16.3% 46.9%);
+  --border: hsl(214.3 31.8% 91.4%);
+  --ring: hsl(215 20.2% 65.1%);
+  --surface: hsl(0 0% 98%);
+  --surface-2: hsl(210 20% 95%);
+  --diagram-bg: hsl(210 20% 97%);
+  --diagram-grid-dot: hsl(215 15% 85%);
+  --path-inactive: hsl(214.3 20% 85%);
+  --module-shadow: hsla(215, 25%, 70%, 0.15);
+  --text-primary: hsl(222.2 47.4% 11.2%);
+  --text-secondary: hsl(215.4 16.3% 46.9%);
+  --text-tertiary: hsl(215 15% 72%);
+  --accent-blue: hsl(213 94% 62%);
+  --accent-cyan: hsl(162 100% 42%);
+  --accent-purple: hsl(256 100% 71%);
+  --accent-orange: hsl(24 100% 63%);
+  --accent-pink: hsl(340 100% 67%);
+  --accent-yellow: hsl(44 100% 60%);
+  --accent-red: hsl(350 100% 63%);
+  --accent-green: hsl(150 70% 55%);
+  --space-1: 4px; --space-2: 8px; --space-3: 12px; --space-4: 16px;
+  --space-5: 20px; --space-6: 24px; --space-8: 32px; --space-10: 40px;
+  --radius-sm: 6px; --radius-md: 8px; --radius-lg: 12px; --radius-full: 9999px;
+  --transition-fast: 150ms ease; --transition-base: 250ms ease;
+  --transition-slow: 400ms ease; --transition-theme: 300ms ease;
+}
+
+[data-theme="dark"] {
+  --background: hsl(224 71% 4%);
+  --foreground: hsl(213 31% 91%);
+  --card: hsl(224 50% 8%);
+  --card-foreground: hsl(213 31% 91%);
+  --muted: hsl(223 47% 11%);
+  --muted-foreground: hsl(215.4 16.3% 56.9%);
+  --border: hsl(216 34% 17%);
+  --ring: hsl(216 34% 30%);
+  --surface: hsl(224 50% 8%);
+  --surface-2: hsl(223 47% 12%);
+  --diagram-bg: hsl(224 60% 5%);
+  --diagram-grid-dot: hsl(216 25% 18%);
+  --path-inactive: hsl(216 25% 22%);
+  --module-shadow: hsla(224, 50%, 3%, 0.4);
+  --text-primary: hsl(213 31% 91%);
+  --text-secondary: hsl(215.4 16.3% 56.9%);
+  --text-tertiary: hsl(215 15% 30%);
+}
+
+/* ═══════════════════════════════════════════════════
+   RESET & BASE
+   ═══════════════════════════════════════════════════ */
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  background: var(--background);
+  color: var(--text-primary);
+  font-family: 'IBM Plex Sans', -apple-system, sans-serif;
+  min-height: 100vh;
+  overflow-x: hidden;
+  transition: background-color var(--transition-theme), color var(--transition-theme);
+}
+
+/* ═══════════════════════════════════════════════════
+   HEADER
+   ═══════════════════════════════════════════════════ */
+header {
+  padding: var(--space-8) var(--space-10) 0;
+  position: relative;
+  z-index: 2;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  max-width: 960px;
+  margin: 0 auto;
+}
+
+.header-text { flex: 1; }
+
+header h1 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 500; font-size: 11px;
+  letter-spacing: 3px; text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-2);
+}
+
+header h2 {
+  font-weight: 600; font-size: 24px;
+  color: var(--text-primary); letter-spacing: -0.3px;
+  transition: color var(--transition-theme);
+}
+
+header h2 span { color: var(--accent-blue); }
+
+.subtitle {
+  font-size: 13px; color: var(--text-secondary);
+  margin-top: var(--space-1); font-weight: 400; line-height: 1.5;
+}
+
+.theme-toggle {
+  width: 36px; height: 36px;
+  border-radius: var(--radius-full);
+  background: var(--surface-2); border: 1px solid var(--border);
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: all var(--transition-base); flex-shrink: 0; margin-top: var(--space-1);
+}
+.theme-toggle:hover { background: var(--muted); border-color: var(--text-tertiary); }
+.theme-toggle:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.theme-toggle svg { width: 16px; height: 16px; color: var(--text-secondary); transition: color var(--transition-theme); }
+.theme-toggle:hover svg { color: var(--text-primary); }
+.theme-toggle .icon-sun, .theme-toggle .icon-moon { display: none; }
+[data-theme="light"] .theme-toggle .icon-moon { display: block; }
+[data-theme="dark"] .theme-toggle .icon-sun { display: block; }
+
+/* ═══════════════════════════════════════════════════
+   TASK BAR
+   ═══════════════════════════════════════════════════ */
+.task-bar {
+  display: flex; gap: var(--space-1);
+  padding: var(--space-6) var(--space-10);
+  flex-wrap: wrap; position: relative; z-index: 2;
+  max-width: 960px; margin: 0 auto;
+}
+
+.task-btn {
+  background: transparent; border: 1px solid transparent;
+  color: var(--text-secondary);
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; font-weight: 500;
+  padding: var(--space-2) var(--space-4);
+  border-radius: var(--radius-sm); cursor: pointer;
+  transition: all var(--transition-fast);
+  letter-spacing: 0.5px; text-transform: uppercase; white-space: nowrap;
+}
+.task-btn:hover { background: var(--muted); color: var(--text-primary); }
+.task-btn:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+.task-btn.active { background: var(--foreground); color: var(--background); font-weight: 600; }
+
+/* ═══════════════════════════════════════════════════
+   DIAGRAM CONTAINER — Tall Pipeline
+   ═══════════════════════════════════════════════════ */
+.diagram-container {
+  position: relative;
+  width: 100%; max-width: 900px;
+  aspect-ratio: 5 / 7;
+  margin: var(--space-2) auto 0;
+  padding: 0 var(--space-6);
+}
+
+.diagram-inner {
+  position: relative;
+  width: 100%; height: 100%;
+  background: var(--diagram-bg);
+  border: 1px solid var(--border);
+  /* Organic brain-like silhouette: wider at top (sensory), narrower at bottom (motor) */
+  border-radius: 48% 48% 34% 34% / 5% 5% 3% 3%;
+  overflow: visible;
+  transition: background-color var(--transition-theme), border-color var(--transition-theme);
+}
+
+/* Organic texture — subtle cell-like pattern */
+.diagram-inner::before {
+  content: '';
+  position: absolute; inset: 0;
+  background-image:
+    radial-gradient(ellipse 18px 22px at 30% 25%, color-mix(in srgb, var(--diagram-grid-dot) 40%, transparent) 0%, transparent 70%),
+    radial-gradient(ellipse 22px 18px at 70% 45%, color-mix(in srgb, var(--diagram-grid-dot) 30%, transparent) 0%, transparent 70%),
+    radial-gradient(ellipse 16px 20px at 50% 70%, color-mix(in srgb, var(--diagram-grid-dot) 35%, transparent) 0%, transparent 70%),
+    radial-gradient(var(--diagram-grid-dot) 0.8px, transparent 0.8px);
+  background-size: 120px 140px, 140px 120px, 100px 130px, 24px 24px;
+  opacity: 0.35; pointer-events: none;
+  border-radius: inherit;
+  transition: opacity var(--transition-theme);
+}
+
+/* ═══════════════════════════════════════════════════
+   TIER BANDS
+   ═══════════════════════════════════════════════════ */
+.tier-band {
+  position: absolute; left: 0; right: 0;
+  pointer-events: none; z-index: 0;
+  border-bottom: 1px dashed var(--border);
+  opacity: 0.2;
+}
+.tier-label {
+  position: absolute; left: 3%; top: 8px;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 8px; font-weight: 400;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text-tertiary); opacity: 0.45;
+  font-style: italic;
+}
+
+/* Side rail */
+.side-rail-border {
+  position: absolute;
+  right: 30%; top: 16%; bottom: 36%;
+  width: 1px;
+  background: linear-gradient(to bottom, transparent, var(--border) 20%, var(--border) 80%, transparent);
+  pointer-events: none; z-index: 0; opacity: 0.25;
+}
+.side-rail-label {
+  position: absolute;
+  right: 31%; top: 15%;
+  font-family: 'IBM Plex Sans', sans-serif;
+  font-size: 7px; letter-spacing: 1.5px; text-transform: uppercase;
+  color: var(--text-tertiary); opacity: 0.3;
+  writing-mode: vertical-rl; text-orientation: mixed;
+  font-style: italic;
+}
+
+/* Flow chevrons — soft organic arrows */
+.flow-chevron {
+  position: absolute; left: 37%;
+  pointer-events: none; z-index: 0; opacity: 0.08;
+  transition: opacity var(--transition-slow);
+  color: var(--text-tertiary);
+  font-size: 18px;
+  font-family: system-ui;
+  user-select: none;
+  letter-spacing: -2px;
+}
+.has-active-task .flow-chevron { opacity: 0; }
+
+/* ═══════════════════════════════════════════════════
+   SVG + CANVAS LAYERS
+   ═══════════════════════════════════════════════════ */
+.connections-layer {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; z-index: 1;
+}
+.connections-layer path {
+  fill: none;
+  stroke: var(--path-inactive);
+  stroke-width: 1; opacity: 0.25;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  transition: all 0.5s ease;
+}
+.connections-layer path.active {
+  stroke-width: 2.5; opacity: 0.85;
+}
+.connections-layer path.feedback-path {
+  stroke-dasharray: 5 4;
+}
+.connections-layer path.active.feedback-path {
+  stroke-dasharray: 5 4;
+}
+
+.particle-canvas {
+  position: absolute; inset: 0;
+  z-index: 3; pointer-events: none;
+}
+
+/* ═══════════════════════════════════════════════════
+   MODULE NODES
+   ═══════════════════════════════════════════════════ */
+/* ── Module: compact by default, organic feel ── */
+.module {
+  position: absolute;
+  background: color-mix(in srgb, var(--card) 92%, var(--module-color));
+  border: 1px solid color-mix(in srgb, var(--border) 80%, var(--module-color) 20%);
+  border-radius: 14px;
+  padding: 8px 12px;
+  padding-left: 16px;
+  cursor: pointer;
+  transition: all 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
+  z-index: 4;
+  width: clamp(105px, 11vw, 140px);
+  transform: translate(-50%, -50%);
+  backdrop-filter: blur(10px);
+  -webkit-backdrop-filter: blur(10px);
+}
+
+.module-indicator {
+  position: absolute; left: 0; top: 6px; bottom: 6px;
+  width: 3px; border-radius: 0 3px 3px 0;
+  background: var(--module-color);
+  opacity: 0.25; transition: opacity var(--transition-base);
+}
+
+/* Intake port (top) — organic rounded */
+.module::before {
+  content: ''; position: absolute;
+  top: -4px; left: 50%; transform: translateX(-50%);
+  width: 12px; height: 4px;
+  background: var(--module-color);
+  border-radius: 4px 4px 0 0;
+  opacity: 0; transition: opacity var(--transition-base);
+}
+/* Output port (bottom) — organic rounded */
+.module::after {
+  content: ''; position: absolute;
+  bottom: -4px; left: 50%; transform: translateX(-50%);
+  width: 12px; height: 4px;
+  background: var(--module-color);
+  border-radius: 0 0 4px 4px;
+  opacity: 0; transition: opacity var(--transition-base);
+}
+
+.module .tag {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 8px; font-weight: 500;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  margin-bottom: 1px; color: var(--text-tertiary);
+  transition: color var(--transition-slow);
+}
+.module .name {
+  font-weight: 600; font-size: 12px;
+  color: var(--text-primary);
+  transition: color var(--transition-slow); line-height: 1.25;
+}
+.module .region {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 7px; font-weight: 400;
+  color: var(--text-tertiary); letter-spacing: 0.2px;
+  margin-top: 2px; line-height: 1.3;
+  max-height: 0; overflow: hidden; opacity: 0;
+  transition: all 0.35s ease;
+}
+.module .desc {
+  font-size: 10px; color: var(--text-secondary);
+  margin-top: var(--space-1); line-height: 1.5;
+  max-height: 0; overflow: hidden;
+  transition: max-height 0.5s ease, opacity var(--transition-slow);
+  opacity: 0;
+}
+.module .seq {
+  position: absolute; top: -8px; right: -8px;
+  width: 20px; height: 20px;
+  border-radius: var(--radius-full);
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  opacity: 0; transform: scale(0);
+  transition: all var(--transition-base);
+  background: var(--module-color); color: white;
+}
+
+/* ── Hover state: gentle grow + reveal region ── */
+.module:hover {
+  transform: translate(-50%, -50%) scale(1.06);
+  box-shadow: 0 6px 20px var(--module-shadow);
+  border-color: color-mix(in srgb, var(--module-color) 35%, var(--border));
+  z-index: 5;
+}
+.module:hover .module-indicator { opacity: 0.5; }
+.module:hover .region { max-height: 30px; opacity: 1; }
+
+.module:focus-visible { outline: 2px solid var(--ring); outline-offset: 2px; }
+
+/* ── Expanded state: click to expand, shows full description ── */
+.module.expanded {
+  width: clamp(150px, 16vw, 200px);
+  transform: translate(-50%, -50%) scale(1.08);
+  z-index: 10;
+  border-color: color-mix(in srgb, var(--module-color) 50%, transparent);
+  background: color-mix(in srgb, var(--module-color) 5%, var(--card));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--module-color) 12%, transparent),
+    0 8px 32px color-mix(in srgb, var(--module-color) 15%, transparent);
+  border-radius: 16px;
+  padding: 10px 14px 12px 18px;
+}
+.module.expanded .module-indicator { opacity: 0.8; }
+.module.expanded .tag { color: var(--module-color); }
+.module.expanded .region { max-height: 40px; opacity: 1; color: var(--text-secondary); }
+.module.expanded .desc { max-height: 150px; opacity: 1; }
+
+/* ── Active state (task selected): glow + ports, but stays compact ── */
+.module.active {
+  border-color: color-mix(in srgb, var(--module-color) 50%, transparent);
+  background: color-mix(in srgb, var(--module-color) 8%, var(--card));
+  box-shadow:
+    0 0 0 1px color-mix(in srgb, var(--module-color) 15%, transparent),
+    0 4px 20px color-mix(in srgb, var(--module-color) 12%, transparent);
+  animation: pulse 3s ease-in-out infinite;
+}
+.module.active .module-indicator { opacity: 1; }
+.module.active .tag { color: var(--module-color); }
+.module.active .region { max-height: 30px; opacity: 1; color: var(--text-secondary); }
+.module.active .seq { opacity: 1; transform: scale(1); }
+.module.active::before, .module.active::after { opacity: 0.5; }
+
+/* Active + expanded = full detail */
+.module.active.expanded .desc { max-height: 150px; opacity: 1; }
+
+/* ── Dimmed state ── */
+.module.dimmed {
+  opacity: 0.12; transform: translate(-50%, -50%) scale(0.94);
+  filter: grayscale(0.5);
+}
+.module.dimmed:hover {
+  transform: translate(-50%, -50%) scale(0.94);
+  box-shadow: none;
+}
+
+@keyframes pulse {
+  0%, 100% { box-shadow: 0 0 0 1px color-mix(in srgb, var(--module-color) 15%, transparent), 0 4px 20px color-mix(in srgb, var(--module-color) 12%, transparent); }
+  50% { box-shadow: 0 0 0 1px color-mix(in srgb, var(--module-color) 22%, transparent), 0 4px 28px color-mix(in srgb, var(--module-color) 18%, transparent); }
+}
+
+/* ═══════════════════════════════════════════════════
+   INFO PANEL
+   ═══════════════════════════════════════════════════ */
+.info-panel {
+  position: relative; z-index: 2;
+  max-width: 900px; margin: 0 auto;
+  padding: var(--space-4) var(--space-6) var(--space-10);
+}
+.info-card {
+  background: var(--card); border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-6) var(--space-8);
+  opacity: 0; transform: translateY(8px);
+  transition: all var(--transition-slow);
+  display: grid; grid-template-columns: 1fr 1fr;
+  gap: var(--space-8);
+}
+.info-card.visible { opacity: 1; transform: translateY(0); }
+
+.info-flow h3 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-weight: 600; font-size: 10px;
+  color: var(--accent-blue);
+  margin-bottom: var(--space-1);
+  letter-spacing: 2px; text-transform: uppercase;
+}
+.info-flow .task-title {
+  font-size: 20px; font-weight: 600;
+  margin-bottom: var(--space-3);
+  color: var(--text-primary); line-height: 1.3;
+}
+.info-flow .flow-desc {
+  font-size: 13px; line-height: 1.75; color: var(--text-secondary);
+}
+.info-flow .flow-desc strong { color: var(--text-primary); font-weight: 600; }
+
+.info-bridges h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  color: var(--accent-orange);
+  letter-spacing: 2px; text-transform: uppercase;
+  margin-bottom: var(--space-3);
+}
+.bridge-item {
+  background: var(--muted); border-radius: var(--radius-sm);
+  padding: var(--space-3) var(--space-4);
+  margin-bottom: var(--space-2);
+  transition: background-color var(--transition-theme);
+}
+.bridge-item .bridge-label {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 12px; font-weight: 600;
+  color: var(--text-primary); margin-bottom: 2px;
+  display: flex; align-items: center; gap: var(--space-2);
+}
+.bridge-item .bridge-label::before {
+  content: ''; display: inline-block;
+  width: 6px; height: 6px;
+  border-radius: var(--radius-full);
+  background: var(--accent-cyan); flex-shrink: 0;
+}
+.bridge-item .bridge-desc {
+  font-size: 12px; color: var(--text-secondary);
+  line-height: 1.5; padding-left: 14px;
+}
+
+/* Region detail view in info card */
+.info-region-header {
+  display: flex; align-items: center; gap: var(--space-3);
+  margin-bottom: var(--space-3);
+}
+.info-region-dot {
+  width: 12px; height: 12px; border-radius: var(--radius-full);
+  flex-shrink: 0;
+  box-shadow: 0 0 8px var(--dot-color);
+}
+.info-region-title {
+  font-size: 20px; font-weight: 600;
+  color: var(--text-primary); line-height: 1.3;
+}
+.info-region-anatomy {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 11px; color: var(--text-secondary);
+  margin-bottom: var(--space-4); line-height: 1.5;
+}
+.info-region-desc {
+  font-size: 13px; line-height: 1.75; color: var(--text-secondary);
+}
+.info-region-desc strong { color: var(--text-primary); font-weight: 600; }
+.info-clinical h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  color: var(--accent-red); letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: var(--space-3);
+}
+.info-tasks-used h4 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  color: var(--accent-cyan); letter-spacing: 2px;
+  text-transform: uppercase; margin-bottom: var(--space-2);
+}
+.info-tasks-used .task-tag {
+  display: inline-block;
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 500;
+  padding: 3px 8px; margin: 2px 4px 2px 0;
+  border-radius: var(--radius-sm);
+  background: var(--muted); color: var(--text-secondary);
+  cursor: pointer; transition: all var(--transition-fast);
+}
+.task-tag:hover { background: var(--foreground); color: var(--background); }
+
+/* ═══════════════════════════════════════════════════
+   BRAIN ANATOMY SVG
+   ═══════════════════════════════════════════════════ */
+.brain-panel {
+  position: relative; z-index: 2;
+  max-width: 900px; margin: 0 auto;
+  padding: var(--space-4) var(--space-6) 0;
+}
+.brain-container {
+  background: var(--card);
+  border: 1px solid var(--border);
+  border-radius: var(--radius-lg);
+  padding: var(--space-5) var(--space-6);
+  transition: background-color var(--transition-theme), border-color var(--transition-theme);
+  display: flex;
+  align-items: center;
+  gap: var(--space-6);
+}
+.brain-svg-wrap {
+  flex: 0 0 55%;
+  max-width: 420px;
+  position: relative;
+}
+.brain-svg-wrap svg { width: 100%; height: auto; position: relative; z-index: 1; }
+.brain-particle-canvas {
+  position: absolute; inset: 0; z-index: 2;
+  pointer-events: none; border-radius: var(--radius-sm);
+}
+.brain-legend {
+  flex: 1;
+}
+.brain-legend h3 {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 10px; font-weight: 600;
+  letter-spacing: 2px; text-transform: uppercase;
+  color: var(--text-tertiary);
+  margin-bottom: var(--space-3);
+}
+.brain-legend-item {
+  display: flex; align-items: center; gap: var(--space-2);
+  margin-bottom: 4px; padding: 4px 8px;
+  font-size: 11px; color: var(--text-secondary);
+  transition: all 0.2s ease; cursor: pointer;
+  border-radius: var(--radius-sm);
+}
+.brain-legend-item:hover {
+  background: var(--muted); color: var(--text-primary);
+}
+.brain-legend-item .legend-dot {
+  width: 8px; height: 8px; border-radius: var(--radius-full);
+  flex-shrink: 0; transition: transform 0.3s ease, box-shadow 0.3s ease;
+}
+.brain-legend-item.active {
+  color: var(--text-primary); background: var(--muted);
+  font-weight: 500;
+}
+.brain-legend-item.active .legend-dot {
+  transform: scale(1.4);
+  box-shadow: 0 0 8px currentColor;
+}
+/* Brain region paths */
+.brain-region {
+  transition: fill 0.5s ease, opacity 0.5s ease, filter 0.5s ease;
+  cursor: pointer;
+}
+.brain-region:hover { filter: brightness(1.2); }
+.brain-region.region-lit {
+  filter: brightness(1.3) drop-shadow(0 0 6px var(--region-color));
+}
+.brain-outline {
+  fill: none;
+  stroke: var(--text-tertiary);
+  stroke-width: 1.2;
+  opacity: 0.4;
+  transition: stroke var(--transition-theme);
+}
+.brain-sulcus {
+  fill: none;
+  stroke: var(--text-tertiary);
+  stroke-width: 0.8;
+  opacity: 0.2;
+  stroke-linecap: round;
+}
+.brain-label-text {
+  font-family: 'IBM Plex Mono', monospace;
+  font-size: 6px;
+  fill: var(--text-tertiary);
+  opacity: 0.5;
+  pointer-events: none;
+  transition: opacity 0.3s ease;
+}
+.brain-region.region-lit + .brain-label-text,
+.brain-region:hover + .brain-label-text {
+  opacity: 0.9;
+}
+/* White matter flow paths */
+.brain-flow-path {
+  transition: opacity 0.5s ease, stroke-width 0.5s ease, filter 0.5s ease;
+}
+.brain-flow-path.flow-lit {
+  opacity: 0.85 !important;
+  stroke-width: 3 !important;
+  filter: drop-shadow(0 0 4px currentColor);
+  stroke-dasharray: 8 4;
+  animation: brainFlowDash 0.8s linear infinite;
+}
+@keyframes brainFlowDash {
+  to { stroke-dashoffset: -12; }
+}
+
+@media (max-width: 768px) {
+  .brain-container { flex-direction: column; }
+  .brain-svg-wrap { flex: none; max-width: 300px; width: 100%; }
+  .brain-panel { padding: var(--space-3) var(--space-4) 0; }
+}
+
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE
+   ═══════════════════════════════════════════════════ */
+@media (max-width: 1024px) {
+  header, .task-bar, .info-panel { padding-left: var(--space-4); padding-right: var(--space-4); }
+  .diagram-container { padding: 0 var(--space-4); }
+  .module { width: clamp(90px, 10vw, 120px); padding: 6px 10px 6px 14px; }
+  .module .name { font-size: 11px; }
+  .module .tag { font-size: 7px; }
+  .module .desc { display: none; }
+  .module.expanded { width: clamp(130px, 14vw, 170px); }
+}
+@media (max-width: 768px) {
+  header { padding: var(--space-5) var(--space-4) 0; }
+  header h2 { font-size: 20px; }
+  .task-bar { overflow-x: auto; flex-wrap: nowrap; -webkit-overflow-scrolling: touch; scrollbar-width: thin; padding: var(--space-4); }
+  .task-btn { font-size: 10px; padding: var(--space-2) var(--space-3); min-height: 36px; display: flex; align-items: center; }
+  .diagram-container { aspect-ratio: 3 / 5; padding: 0 var(--space-3); }
+  .diagram-inner { border-radius: var(--radius-lg); }
+  .info-panel { padding: var(--space-3) var(--space-4) var(--space-6); }
+  .info-card { grid-template-columns: 1fr; gap: var(--space-5); padding: var(--space-5); }
+  .tier-label { font-size: 7px; letter-spacing: 1.5px; }
+  .side-rail-label, .side-rail-border { display: none; }
+}
+@media (max-width: 480px) {
+  header h2 { font-size: 18px; }
+  .subtitle { font-size: 12px; }
+  .info-flow .task-title { font-size: 16px; }
+  .module { width: clamp(85px, 11vw, 110px); }
+  .module .name { font-size: 11px; }
+  .module .tag { font-size: 8px; }
+}
+
+.task-bar::-webkit-scrollbar { height: 4px; }
+.task-bar::-webkit-scrollbar-thumb { background: var(--border); border-radius: var(--radius-full); }
+
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+</style>
+</head>
+<body>
+
+<header>
+  <div class="header-text">
+    <h1>Systems Architecture</h1>
+    <h2>The Cognitive <span>Brain</span></h2>
+    <p class="subtitle">Select a cognitive task to trace information flow through the architecture</p>
+  </div>
+  <button class="theme-toggle" id="themeToggle" aria-label="Toggle theme">
+    <svg class="icon-sun" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+    <svg class="icon-moon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 12.79A9 9 0 1 1 11.21 3 7 7 0 0 0 21 12.79z"/></svg>
+  </button>
+</header>
+
+<div class="task-bar" id="taskBar" role="tablist" aria-label="Cognitive tasks"></div>
+
+<div class="diagram-container">
+  <div class="diagram-inner" id="diagram">
+    <svg class="connections-layer" id="connections"></svg>
+    <canvas class="particle-canvas" id="particleCanvas" aria-hidden="true"></canvas>
+  </div>
+</div>
+
+<div class="brain-panel">
+  <div class="brain-container">
+    <div class="brain-svg-wrap">
+      <!-- Anatomically accurate lateral view of left hemisphere -->
+      <!-- Based on standard neuroanatomical atlas: anterior=left, posterior=right -->
+      <svg id="brainSvg" viewBox="0 0 400 300" xmlns="http://www.w3.org/2000/svg">
+        <defs>
+          <marker id="brain-arrow" markerWidth="7" markerHeight="5" refX="6" refY="2.5" orient="auto">
+            <polygon points="0 0, 7 2.5, 0 5" fill="currentColor" opacity="0.6"/>
+          </marker>
+        </defs>
+
+        <!-- Brain outline — full silhouette -->
+        <path class="brain-outline"
+          d="M 55,155 C 45,130 42,105 50,82 C 58,60 75,42 100,32 C 125,22 155,20 185,22 C 215,24 240,23 265,26 C 290,29 310,34 330,45 C 350,56 365,72 372,92 C 379,112 378,132 370,150 C 362,168 355,178 348,188 C 340,198 330,208 322,215 C 312,224 298,232 280,238 C 262,244 240,247 225,250 C 210,253 198,258 190,262 C 182,266 178,270 175,272 C 170,276 166,278 160,275 C 154,272 150,266 148,258 C 146,250 142,242 135,235 C 128,228 118,222 108,218 C 95,213 82,210 72,202 C 62,194 56,184 52,172 C 48,164 50,160 55,155 Z"
+          stroke-width="1.5"/>
+
+        <!-- Major sulci -->
+        <g fill="none" stroke="var(--text-tertiary)" stroke-linecap="round" opacity="0.3">
+          <!-- Central sulcus (Rolandic) -->
+          <path d="M 222,26 C 220,40 218,55 216,72 C 214,89 213,106 214,122 C 215,138 217,148 220,155" stroke-width="2"/>
+          <!-- Lateral sulcus (Sylvian fissure) -->
+          <path d="M 120,178 C 135,172 152,165 170,160 C 188,155 206,152 224,152 C 242,152 258,155 272,160 C 286,165 296,172 305,162" stroke-width="2.2"/>
+          <!-- Parieto-occipital sulcus -->
+          <path d="M 320,42 C 318,55 314,70 312,85 C 310,100 310,115 312,130" stroke-width="1.6"/>
+          <!-- Superior temporal sulcus -->
+          <path d="M 132,198 C 148,194 168,190 190,188 C 212,186 234,188 254,192 C 270,196 282,200 292,206" stroke-width="1.2"/>
+          <!-- Precentral sulcus -->
+          <path d="M 195,30 C 193,48 191,68 190,88 C 189,108 190,128 194,148" stroke-width="1"/>
+          <!-- Postcentral sulcus -->
+          <path d="M 245,30 C 242,48 240,68 239,88 C 238,108 240,128 244,148" stroke-width="1"/>
+          <!-- Intraparietal sulcus -->
+          <path d="M 255,60 C 265,72 275,86 282,102 C 289,118 293,130 295,140" stroke-width="1" opacity="0.5"/>
+          <!-- Minor gyral folds -->
+          <g stroke-width="0.5" opacity="0.25">
+            <path d="M 70,95 C 80,92 92,90 105,92"/>
+            <path d="M 75,140 C 88,136 100,135 112,138"/>
+            <path d="M 160,42 C 165,52 168,64 170,78"/>
+            <path d="M 175,50 C 178,62 180,75 180,88"/>
+            <path d="M 252,42 C 258,52 262,65 265,80"/>
+            <path d="M 330,70 C 338,78 344,88 348,100"/>
+            <path d="M 335,110 C 342,118 348,128 350,140"/>
+            <path d="M 150,200 C 165,198 180,198 195,200"/>
+            <path d="M 200,200 C 218,198 236,200 252,204"/>
+            <path d="M 85,120 C 100,118 118,116 135,118 C 152,120 168,126 180,135"/>
+          </g>
+        </g>
+
+        <!-- Functional regions — color-coded to modules -->
+
+        <!-- V1 + Visual Association (V2-V5) — VISUAL (blue) -->
+        <path class="brain-region" id="brain-visual" data-modules="visual" style="--region-color:#4a9eff"
+          fill="#4a9eff" fill-opacity="0.12"
+          d="M 322,42 C 340,52 358,68 368,88 C 378,108 378,132 370,150 C 362,168 355,178 348,188 C 340,198 330,208 322,215 C 312,224 298,232 290,238 L 268,240 C 280,226 290,210 298,194 C 306,178 310,165 310,158 L 310,155 C 304,140 302,120 304,100 C 306,80 312,62 320,48 L 322,42 Z"/>
+
+        <!-- Posterior parietal + IPS — SPATIAL (yellow) -->
+        <path class="brain-region" id="brain-spatial" data-modules="spatial" style="--region-color:#ffcc33"
+          fill="#ffcc33" fill-opacity="0.12"
+          d="M 222,28 C 240,23 265,26 290,29 C 305,32 315,36 322,42 L 320,48 C 312,62 306,80 304,100 C 302,120 304,140 310,155 L 310,158 C 290,162 270,168 255,172 C 240,176 228,178 215,180 L 215,150 C 210,128 208,108 210,88 C 212,68 218,48 222,28 Z"/>
+
+        <!-- Posterior STG / Wernicke's — PHONOLOGICAL (purple) -->
+        <path class="brain-region" id="brain-phonological" data-modules="phonological" style="--region-color:#9b6dff"
+          fill="#9b6dff" fill-opacity="0.12"
+          d="M 262,160 C 272,158 282,162 290,170 C 298,178 300,186 298,194 L 288,200 C 278,206 268,208 258,206 C 248,204 242,198 240,190 C 238,182 242,172 250,165 C 254,162 258,161 262,160 Z"/>
+
+        <!-- A1 / Heschl's + STG — AUDITORY (cyan) -->
+        <path class="brain-region" id="brain-auditory" data-modules="auditory" style="--region-color:#00d4aa"
+          fill="#00d4aa" fill-opacity="0.12"
+          d="M 218,162 C 225,158 232,156 240,158 C 248,160 254,166 258,172 C 262,178 260,184 254,186 C 248,188 240,186 234,182 C 226,178 220,170 218,162 Z"/>
+
+        <!-- Anterior temporal — SEMANTIC (orange) -->
+        <path class="brain-region" id="brain-semantic" data-modules="semantic" style="--region-color:#ff8844"
+          fill="#ff8844" fill-opacity="0.12"
+          d="M 90,196 C 100,188 112,182 125,177 C 138,172 148,170 155,168 L 155,210 C 148,215 140,220 130,225 C 118,230 108,228 100,222 C 92,216 88,210 90,196 Z"/>
+
+        <!-- Broca's area (BA 44/45) — SYNTACTIC (pink) -->
+        <path class="brain-region" id="brain-syntactic" data-modules="syntactic" style="--region-color:#ff5599"
+          fill="#ff5599" fill-opacity="0.12"
+          d="M 130,130 C 135,118 142,108 150,105 C 158,102 165,106 170,114 C 175,122 178,134 178,146 L 170,160 C 155,164 142,168 135,170 L 130,172 C 125,160 125,145 130,130 Z"/>
+
+        <!-- Dorsolateral PFC — WORKING MEMORY (blue) -->
+        <path class="brain-region" id="brain-workingmem" data-modules="workingmem" style="--region-color:#4a9eff"
+          fill="#4a9eff" fill-opacity="0.12"
+          d="M 80,60 C 90,45 110,35 130,28 C 145,24 155,22 160,22 L 158,30 C 155,55 153,80 153,100 L 140,100 C 138,82 132,68 120,58 C 108,50 95,55 80,60 Z"/>
+
+        <!-- Anterior PFC / ACC — EXECUTIVE (red) -->
+        <path class="brain-region" id="brain-executive" data-modules="executive" style="--region-color:#ff4466"
+          fill="#ff4466" fill-opacity="0.12"
+          d="M 55,155 C 45,130 42,105 50,82 C 58,60 75,42 100,32 C 120,24 140,22 160,22 L 158,30 C 155,55 153,80 153,105 C 153,125 155,142 158,156 L 145,162 C 130,168 115,178 102,186 C 90,196 80,204 72,202 C 62,194 56,184 52,172 C 48,164 50,160 55,155 Z"/>
+
+        <!-- Precentral gyrus / M1 — MOTOR (green) -->
+        <path class="brain-region" id="brain-motor" data-modules="motor" style="--region-color:#44dd88"
+          fill="#44dd88" fill-opacity="0.12"
+          d="M 210,88 C 208,108 210,128 215,150 L 225,146 C 222,126 220,106 222,86 L 222,28 L 218,25 C 215,45 212,68 210,88 Z"/>
+
+        <!-- Amygdala / insula — EMOTIONAL (pink, deep structure) -->
+        <ellipse class="brain-region" id="brain-emotional" data-modules="emotional" style="--region-color:#ff5599"
+          fill="#ff5599" fill-opacity="0.06" cx="175" cy="175" rx="28" ry="20"
+          stroke="#ff5599" stroke-width="0.7" stroke-opacity="0.2" stroke-dasharray="3 2"/>
+
+        <!-- Hippocampus — MEMORY (purple, deep structure) -->
+        <ellipse class="brain-region" id="brain-memory" data-modules="memory" style="--region-color:#9b6dff"
+          fill="#9b6dff" fill-opacity="0.06" cx="195" cy="210" rx="32" ry="16"
+          stroke="#9b6dff" stroke-width="0.7" stroke-opacity="0.2" stroke-dasharray="3 2"/>
+
+        <!-- White matter pathways — information flow channels -->
+        <g id="brain-pathways" fill="none" stroke-linecap="round" opacity="0.4">
+          <!-- Arcuate fasciculus: Broca's → Wernicke's (language loop) -->
+          <path id="brain-flow-arcuate" class="brain-flow-path" data-from="syntactic" data-to="phonological"
+            d="M 155,130 C 160,108 175,82 200,65 C 225,48 255,52 275,72 C 295,92 300,118 290,145 C 284,162 275,170 268,172"
+            stroke="#E63946" stroke-width="2.2" marker-end="url(#brain-arrow)" style="color:#E63946"/>
+          <!-- SLF: frontal → parietal (dorsal stream) -->
+          <path id="brain-flow-slf" class="brain-flow-path" data-from="workingmem" data-to="spatial"
+            d="M 110,55 C 140,42 180,35 220,34 C 260,33 295,42 320,60 C 335,72 342,86 340,100"
+            stroke="#457B9D" stroke-width="2" marker-end="url(#brain-arrow)" style="color:#457B9D"/>
+          <!-- IFOF: frontal → occipital (ventral stream) -->
+          <path id="brain-flow-ifof" class="brain-flow-path" data-from="executive" data-to="visual"
+            d="M 120,160 C 145,175 180,188 215,194 C 250,200 280,198 305,188 C 325,180 340,168 350,152"
+            stroke="#2A9D8F" stroke-width="2" marker-end="url(#brain-arrow)" style="color:#2A9D8F"/>
+          <!-- Uncinate: orbitofrontal → anterior temporal -->
+          <path id="brain-flow-uncinate" class="brain-flow-path" data-from="executive" data-to="semantic"
+            d="M 80,165 C 82,178 90,192 102,200 C 114,208 128,210 142,208 C 152,206 158,200 160,192"
+            stroke="#F4A261" stroke-width="1.8" marker-end="url(#brain-arrow)" style="color:#F4A261"/>
+          <!-- ILF: occipital → anterior temporal (visual-semantic) -->
+          <path id="brain-flow-ilf" class="brain-flow-path" data-from="visual" data-to="semantic"
+            d="M 340,175 C 320,200 290,218 255,230 C 220,240 185,244 155,240 C 135,237 120,230 110,220"
+            stroke="#9B59B6" stroke-width="1.8" marker-end="url(#brain-arrow)" style="color:#9B59B6"/>
+        </g>
+
+        <!-- Labels -->
+        <g font-family="'IBM Plex Mono', monospace" fill="var(--text-tertiary)" opacity="0.45">
+          <text x="360" y="100" font-size="6.5" font-weight="600">V1</text>
+          <text x="340" y="160" font-size="5.5">V2-V5</text>
+          <text x="276" y="85" font-size="5.5">Post. parietal</text>
+          <text x="276" y="185" font-size="6" font-weight="600">Wernicke's</text>
+          <text x="240" y="172" font-size="6">A1</text>
+          <text x="108" y="205" font-size="5.5">Ant. temporal</text>
+          <text x="155" y="125" font-size="6" font-weight="600">Broca's</text>
+          <text x="115" y="68" font-size="5.5">dlPFC</text>
+          <text x="68" y="110" font-size="5.5">aPFC/ACC</text>
+          <text x="213" y="80" font-size="6" font-weight="600">M1</text>
+          <text x="160" y="180" font-size="5" font-style="italic" opacity="0.6">amygdala</text>
+          <text x="190" y="218" font-size="5" font-style="italic" opacity="0.6">hippocampus</text>
+        </g>
+
+        <!-- Pathway labels -->
+        <g font-family="'IBM Plex Sans', sans-serif" fill="var(--text-tertiary)" opacity="0.3" font-style="italic" font-size="5.5">
+          <text x="218" y="58">Arcuate fasc.</text>
+          <text x="238" y="38">SLF</text>
+          <text x="258" y="198">IFOF</text>
+          <text x="100" y="215">Uncinate</text>
+          <text x="218" y="248">ILF</text>
+        </g>
+
+        <!-- Orientation markers -->
+        <g font-family="'IBM Plex Sans', sans-serif" fill="var(--text-tertiary)" opacity="0.25" font-style="italic" font-size="7">
+          <text x="30" y="155">A</text>
+          <text x="388" y="155">P</text>
+        </g>
+        <text x="200" y="295" font-family="'IBM Plex Mono', monospace" font-size="6" fill="var(--text-tertiary)" opacity="0.3" text-anchor="middle" letter-spacing="1.5" text-transform="uppercase">
+          Left Hemisphere — Lateral View
+        </text>
+      </svg>
+      <canvas class="brain-particle-canvas" id="brainParticleCanvas" aria-hidden="true"></canvas>
+    </div>
+    <div class="brain-legend" id="brainLegend">
+      <h3>Neuroanatomical Map</h3>
+    </div>
+  </div>
+</div>
+
+<div class="info-panel">
+  <div class="info-card" id="infoCard" role="region" aria-live="polite"></div>
+</div>
+
+<script>
+// ══════════════════════════════════════════════════
+// THEME
+// ══════════════════════════════════════════════════
+(function initTheme() {
+  const stored = localStorage.getItem('cognitive-arch-theme');
+  if (stored) { document.documentElement.setAttribute('data-theme', stored); }
+  else {
+    const prefersDark = window.matchMedia('(prefers-color-scheme: dark)').matches;
+    document.documentElement.setAttribute('data-theme', prefersDark ? 'dark' : 'light');
+  }
+})();
+document.getElementById('themeToggle').addEventListener('click', () => {
+  const current = document.documentElement.getAttribute('data-theme');
+  const next = current === 'dark' ? 'light' : 'dark';
+  document.documentElement.setAttribute('data-theme', next);
+  localStorage.setItem('cognitive-arch-theme', next);
+});
+window.matchMedia('(prefers-color-scheme: dark)').addEventListener('change', (e) => {
+  if (!localStorage.getItem('cognitive-arch-theme'))
+    document.documentElement.setAttribute('data-theme', e.matches ? 'dark' : 'light');
+});
+
+// ══════════════════════════════════════════════════
+// MODULE DEFINITIONS — Tier-based vertical layout
+// ══════════════════════════════════════════════════
+// x/y are percentages; modules use transform:translate(-50%,-50%) so these are CENTER points
+const modules = {
+  // TIER 1 — SENSORY INPUT (y ~6%)
+  visual:       { id: 'visual',       name: 'Visual Processing',   tag: 'Perceptual',  x: 22, y: 6,  color: '#4a9eff',
+    region: 'V1\u2013V5, occipital lobe, fusiform gyrus (VWFA)',
+    desc: 'Retinal input \u2192 edge detection \u2192 pattern recognition \u2192 object identification. The Visual Word Form Area (left fusiform) specializes in letter/word recognition.' },
+  auditory:     { id: 'auditory',     name: 'Auditory Processing',  tag: 'Perceptual',  x: 50, y: 6,  color: '#00d4aa',
+    region: 'A1, superior temporal gyrus, Heschl\u2019s gyrus',
+    desc: 'Cochlear input \u2192 spectrotemporal analysis \u2192 pitch, timing, loudness extraction. Segments the continuous acoustic stream into processable units.' },
+  // TIER 2 — EARLY PROCESSING (y ~22%)
+  spatial:      { id: 'spatial',      name: 'Spatial Reasoning',    tag: 'Reasoning',   x: 18, y: 22, color: '#ffcc33',
+    region: 'Posterior parietal cortex, intraparietal sulcus',
+    desc: 'Mental rotation, magnitude processing, number line representation. The intraparietal sulcus is critical for numerical magnitude (Dehaene\u2019s triple-code model).' },
+  phonological: { id: 'phonological', name: 'Phonological System',  tag: 'Language',    x: 48, y: 22, color: '#9b6dff',
+    region: 'Posterior STG, supramarginal gyrus (L)',
+    desc: 'Encodes sound-based representations of language. Contains Baddeley\u2019s phonological loop \u2014 a short-term buffer for speech sounds with articulatory rehearsal.' },
+  // TIER 3 — DEEP PROCESSING (y ~40%)
+  semantic:     { id: 'semantic',     name: 'Semantic Network',     tag: 'Language',    x: 22, y: 40, color: '#ff8844',
+    region: 'Anterior temporal lobe, angular gyrus',
+    desc: 'Hub-and-spoke concept system (Patterson & Lambon Ralph). The anterior temporal lobe integrates modality-specific features into amodal meanings, categories, and associations.' },
+  syntactic:    { id: 'syntactic',    name: 'Syntactic Engine',     tag: 'Language',    x: 50, y: 40, color: '#ff5599',
+    region: 'Broca\u2019s area (BA 44/45), left IFG',
+    desc: 'Computes hierarchical phrase structure for both comprehension (parsing) and production (grammatical encoding). Operates via Levelt\u2019s formulator model.' },
+  // TIER 4 — INTEGRATION HUB (y ~58%)
+  workingmem:   { id: 'workingmem',   name: 'Working Memory',      tag: 'Integration', x: 27, y: 58, color: '#4a9eff',
+    region: 'Dorsolateral PFC (BA 9/46), posterior parietal',
+    desc: 'Baddeley\u2019s model: central executive + phonological loop + visuospatial sketchpad + episodic buffer. Capacity-limited (~4 chunks). The critical integration bottleneck.' },
+  executive:    { id: 'executive',    name: 'Executive Control',    tag: 'Governance',  x: 52, y: 58, color: '#ff4466',
+    region: 'Anterior PFC, anterior cingulate cortex (ACC)',
+    desc: 'Conflict monitoring (ACC), inhibition, task switching, goal maintenance. Norman & Shallice\u2019s supervisory attentional system. Slow, effortful, fatigable.' },
+  // TIER 5 — OUTPUT (y ~78%)
+  motor:        { id: 'motor',        name: 'Motor Output',         tag: 'Output',      x: 38, y: 78, color: '#44dd88',
+    region: 'Primary motor cortex (M1), premotor, SMA, cerebellum',
+    desc: 'Executes voluntary movement \u2014 speech articulation (ventral premotor), handwriting (dorsal stream), typing. Tightly coupled to sensory systems via feedback loops.' },
+  // SIDE RAIL — MODULATION (x ~78%)
+  emotional:    { id: 'emotional',    name: 'Emotional System',     tag: 'Modulation',  x: 80, y: 25, color: '#ff5599',
+    region: 'Amygdala, OFC, insula, ventral striatum',
+    desc: 'Evaluates affective significance and valence. Amygdala-driven salience detection, reward processing (ventral striatum), interoception (insula). Modulates all other systems.' },
+  memory:       { id: 'memory',       name: 'Long-term Memory',     tag: 'Storage',     x: 80, y: 50, color: '#9b6dff',
+    region: 'Hippocampus, entorhinal cortex, neocortical stores',
+    desc: 'Hippocampus binds cortical representations into episodic memories. Systems consolidation transfers to neocortex over time. Also semantic (facts) and procedural (skills) subsystems.' },
+};
+
+// ══════════════════════════════════════════════════
+// CONNECTIONS
+// ══════════════════════════════════════════════════
+const connections = [
+  // Sensory → Early Processing
+  ['visual', 'phonological'], ['visual', 'spatial'], ['visual', 'semantic'], ['visual', 'workingmem'],
+  ['visual', 'emotional'],    // fast threat detection (superior colliculus → pulvinar → amygdala)
+  ['auditory', 'phonological'], ['auditory', 'workingmem'],
+  ['auditory', 'semantic'],   // non-speech sound meaning (ventral stream)
+  ['auditory', 'emotional'],  // startle, music emotion (medial geniculate → amygdala)
+  // Early Processing → Deep Processing
+  ['phonological', 'semantic'], ['phonological', 'syntactic'], ['phonological', 'workingmem'],
+  ['phonological', 'motor'],  // articulatory planning
+  ['spatial', 'workingmem'], ['spatial', 'motor'],
+  ['spatial', 'semantic'],    // spatial language, number-space mapping (angular gyrus)
+  // Deep Processing interconnections
+  ['semantic', 'syntactic'], ['semantic', 'workingmem'], ['semantic', 'emotional'],
+  ['syntactic', 'workingmem'], ['syntactic', 'phonological'],  // output phonological encoding
+  // Integration hub
+  ['workingmem', 'executive'], ['workingmem', 'motor'], ['workingmem', 'memory'],
+  ['workingmem', 'syntactic'],  // grammatical encoding during production
+  ['executive', 'motor'], ['executive', 'workingmem'],
+  ['executive', 'semantic'],  // top-down revision/retrieval
+  ['executive', 'emotional'], // top-down emotion regulation (PFC → amygdala)
+  // Modulation
+  ['emotional', 'executive'], ['emotional', 'memory'], ['emotional', 'workingmem'],
+  ['emotional', 'motor'],     // expressive behavior, fight/flight (OFC → premotor)
+  // Feedback loops
+  ['memory', 'semantic'], ['memory', 'workingmem'],
+  ['memory', 'emotional'],    // memory-triggered emotion (hippocampus → amygdala)
+  // Sensory feedback loops (motor output → perception)
+  ['motor', 'visual'],    // seeing what you wrote
+  ['motor', 'auditory'],  // hearing your own speech
+];
+
+// Feedback paths — flow AGAINST the main top-to-bottom direction
+const feedbackPaths = new Set([
+  'memory->semantic', 'memory->workingmem', 'memory->emotional',
+  'executive->workingmem', 'executive->semantic', 'executive->emotional',
+  'syntactic->phonological', 'motor->visual', 'motor->auditory',
+  'workingmem->syntactic', 'emotional->workingmem', 'emotional->motor'
+]);
+
+// ══════════════════════════════════════════════════
+// TASKS
+// ══════════════════════════════════════════════════
+const tasks = {
+  reading: {
+    name: 'Reading',
+    title: 'Reading: Dual-Route Visual-Linguistic Integration',
+    activeModules: ['visual', 'phonological', 'semantic', 'syntactic', 'workingmem', 'executive', 'memory', 'emotional'],
+    sequence: { visual: 1, phonological: 2, semantic: 2, syntactic: 3, workingmem: 4, memory: 5, emotional: 5, executive: 6 },
+    activePaths: [
+      ['visual', 'phonological'],    // sublexical route: grapheme-to-phoneme (V1 → supramarginal gyrus)
+      ['visual', 'semantic'],        // lexical route: direct word recognition (VWFA → anterior temporal)
+      ['phonological', 'semantic'],  // phonologically-mediated meaning access
+      ['semantic', 'syntactic'],     // lexico-syntactic integration (temporal → Broca's)
+      ['syntactic', 'workingmem'],   // parsed structure held in active memory
+      ['semantic', 'workingmem'],    // meaning held for discourse integration
+      ['workingmem', 'executive'],   // comprehension monitoring (dlPFC → ACC)
+      ['workingmem', 'memory'],      // encoding into episodic memory
+      ['memory', 'semantic'],        // world knowledge supports inference
+      ['semantic', 'emotional'],     // affective evaluation of content
+    ],
+    desc: '<strong>Visual cortex (V1\u2013V5)</strong> performs orthographic analysis; the VWFA identifies letter strings as word-forms. Two parallel routes activate per Coltheart\u2019s dual-route model: the <strong>sublexical route</strong> converts graphemes to phonemes (posterior superior temporal gyrus), while the <strong>lexical route</strong> maps directly to meaning (anterior temporal lobe). <strong>Broca\u2019s area</strong> assembles syntactic structure incrementally. <strong>Working memory (dlPFC)</strong> holds sentence context while <strong>executive control (ACC)</strong> monitors comprehension and triggers re-reading when understanding breaks down. <strong>Long-term memory (hippocampus)</strong> retrieves world knowledge for inference.',
+    bridges: [
+      { label: 'Visual \u2192 Phonological', desc: 'The reading bridge. Grapheme-to-phoneme conversion via posterior STG. Breakdown = classic phonological dyslexia.' },
+      { label: 'Visual \u2192 Semantic', desc: 'Direct lexical access via VWFA \u2192 anterior temporal lobe. Dominates for familiar words in skilled readers.' },
+      { label: 'Phonological \u2192 Semantic', desc: 'The comprehension bridge. Can decode but not understand = hyperlexia pattern.' }
+    ]
+  },
+  speech: {
+    name: 'Speech Production',
+    title: 'Speech Production: From Concept to Vocalization',
+    activeModules: ['semantic', 'memory', 'workingmem', 'executive', 'syntactic', 'phonological', 'motor', 'auditory'],
+    sequence: { semantic: 1, memory: 1, workingmem: 2, executive: 2, syntactic: 3, phonological: 4, motor: 5, auditory: 6 },
+    activePaths: [
+      ['semantic', 'workingmem'],      // conceptual intent: preverbal message (Levelt's conceptualizer)
+      ['memory', 'semantic'],          // retrieve relevant knowledge, vocabulary
+      ['workingmem', 'executive'],     // response planning and selection (dlPFC \u2192 ACC)
+      ['workingmem', 'syntactic'],     // grammatical encoding (Levelt's formulator \u2192 Broca's area)
+      ['semantic', 'syntactic'],       // lemma access: concept \u2192 word selection
+      ['syntactic', 'phonological'],   // phonological encoding / word-form retrieval
+      ['phonological', 'motor'],       // articulatory score \u2192 motor execution
+      ['executive', 'motor'],          // initiation and monitoring of speech act
+      ['motor', 'auditory'],           // self-monitoring feedback loop (hear own speech)
+      ['auditory', 'phonological'],    // feedback decoded for error detection
+    ],
+    desc: 'Per Levelt\u2019s blueprint model, speech begins with conceptual intent: the <strong>semantic network (anterior temporal lobe)</strong> activates the message to express, drawing on <strong>long-term memory (hippocampus)</strong> for relevant knowledge. <strong>Working memory (dlPFC)</strong> formulates the preverbal message while <strong>executive control (ACC)</strong> selects and sequences the communicative goal. <strong>Broca\u2019s area</strong> performs grammatical encoding \u2014 selecting lemmas and building syntactic frames. The <strong>phonological system (posterior STG)</strong> generates the articulatory score \u2014 syllabification and phonetic planning. <strong>Motor cortex (M1, premotor, cerebellum)</strong> executes the coordinated movements of larynx, tongue, lips, and jaw. Finally, <strong>auditory cortex</strong> provides the self-monitoring feedback loop: hearing your own speech to detect errors.',
+    bridges: [
+      { label: 'Semantic \u2192 Syntactic', desc: 'Thought-to-structure (Levelt\u2019s lemma access). Breakdown = word-finding difficulties, agrammatism in Broca\u2019s aphasia.' },
+      { label: 'Phonological \u2192 Motor', desc: 'Articulatory score to motor execution. Breakdown = apraxia of speech (premotor cortex damage).' },
+      { label: 'Motor \u2192 Auditory', desc: 'Self-monitoring loop. Without it, speech drifts without self-correction. Disrupted in conduction aphasia (arcuate fasciculus).' }
+    ]
+  },
+  math: {
+    name: 'Math',
+    title: 'Mathematical Reasoning: Spatial-Symbolic Integration',
+    activeModules: ['visual', 'spatial', 'semantic', 'phonological', 'workingmem', 'executive', 'memory', 'motor'],
+    sequence: { visual: 1, spatial: 2, semantic: 2, phonological: 3, workingmem: 4, executive: 5, memory: 5, motor: 6 },
+    activePaths: [
+      ['visual', 'spatial'],          // encode layout and magnitude (occipital → intraparietal sulcus)
+      ['visual', 'semantic'],         // number/operator recognition → math fact retrieval
+      ['semantic', 'workingmem'],     // math facts loaded into active workspace
+      ['spatial', 'workingmem'],      // magnitude representations held for manipulation
+      ['phonological', 'workingmem'], // verbal rehearsal of intermediate results
+      ['workingmem', 'executive'],    // sequencing operations, monitoring progress (dlPFC → ACC)
+      ['memory', 'semantic'],         // retrieval of stored procedures and math facts
+      ['workingmem', 'memory'],       // encoding intermediate steps
+      ['executive', 'motor'],         // writing the answer
+      ['motor', 'visual'],            // visual feedback: seeing what you wrote
+    ],
+    desc: '<strong>Visual cortex</strong> identifies digits, operators, and spatial layout. Per Dehaene\u2019s triple-code model, the <strong>intraparietal sulcus</strong> activates for magnitude processing \u2014 understanding \u201chow much\u201d numbers represent on a mental number line. <strong>Semantic network (angular gyrus)</strong> retrieves stored math facts as verbal-semantic associations. The <strong>phonological loop</strong> rehearses intermediate results subvocally. <strong>Working memory (dlPFC)</strong> holds the problem state while <strong>executive control (ACC)</strong> sequences multi-step operations. <strong>Hippocampus</strong> retrieves learned algorithms and procedures. <strong>Motor cortex</strong> writes the solution, with <strong>visual feedback</strong> confirming output.',
+    bridges: [
+      { label: 'Visual \u2192 Spatial', desc: 'The math bridge. Symbol recognition to magnitude intuition (intraparietal sulcus). Breakdown = dyscalculia.' },
+      { label: 'Working Memory \u2192 Executive', desc: 'Holding intermediate results while sequencing steps. Working memory overload = computational errors.' },
+      { label: 'Memory \u2192 Semantic', desc: 'Math fact retrieval (hippocampus \u2192 angular gyrus). Slow retrieval = bottleneck even when concepts are understood.' }
+    ]
+  },
+  listening: {
+    name: 'Listening',
+    title: 'Listening Comprehension: Auditory-Semantic Stream',
+    activeModules: ['auditory', 'phonological', 'syntactic', 'semantic', 'workingmem', 'emotional', 'executive', 'memory'],
+    sequence: { auditory: 1, phonological: 2, syntactic: 3, semantic: 3, workingmem: 4, emotional: 4, memory: 5, executive: 5 },
+    activePaths: [
+      ['auditory', 'phonological'],    // acoustic-to-phonological mapping (A1 → posterior STG)
+      ['phonological', 'syntactic'],   // word recognition feeds parsing (STG → Broca's via arcuate fasciculus)
+      ['phonological', 'semantic'],    // phonological access to meaning
+      ['semantic', 'syntactic'],       // structure-guided meaning composition
+      ['syntactic', 'workingmem'],     // parsed structure held for integration
+      ['semantic', 'workingmem'],      // sentence meaning held for discourse context
+      ['semantic', 'emotional'],       // affective content / speaker intent (→ amygdala, insula)
+      ['emotional', 'executive'],      // emotional evaluation influences attention allocation
+      ['workingmem', 'executive'],     // comprehension monitoring, ambiguity resolution
+      ['workingmem', 'memory'],        // encoding into episodic memory
+      ['memory', 'semantic'],          // world knowledge supports inference and disambiguation
+    ],
+    desc: '<strong>Auditory cortex (A1, Heschl\u2019s gyrus)</strong> performs spectrotemporal analysis. Per Hickok & Poeppel\u2019s dual-stream model, the <strong>posterior STG</strong> maps the acoustic stream onto phonological representations. The <strong>ventral stream</strong> (STG \u2192 anterior temporal lobe) extracts meaning, while <strong>Broca\u2019s area</strong> parses syntax incrementally. <strong>Working memory (dlPFC)</strong> holds discourse context, especially for complex sentences. The <strong>amygdala and insula</strong> process emotional prosody in parallel \u2014 tone of voice, sarcasm, threat. <strong>Executive control (ACC)</strong> resolves ambiguity and sustains attention. <strong>Hippocampus</strong> encodes the understood message and retrieves relevant context.',
+    bridges: [
+      { label: 'Auditory \u2192 Phonological', desc: 'Speech stream segmentation (A1 \u2192 posterior STG). Breakdown = auditory processing disorder.' },
+      { label: 'Semantic \u2192 Emotional', desc: 'Interpreting speaker intent, sarcasm, emotional content via amygdala and right-hemisphere prosody.' },
+      { label: 'Working Memory \u2192 Executive', desc: 'Sustaining attention through extended speech. Working memory fatigue = comprehension drops in long lectures.' }
+    ]
+  },
+  writing: {
+    name: 'Writing',
+    title: 'Writing: Multi-System Orchestration',
+    activeModules: ['visual', 'semantic', 'memory', 'executive', 'workingmem', 'syntactic', 'phonological', 'motor', 'emotional'],
+    sequence: { visual: 1, semantic: 2, memory: 3, executive: 3, workingmem: 4, syntactic: 5, phonological: 5, motor: 6, emotional: 6 },
+    activePaths: [
+      ['visual', 'semantic'],          // read and comprehend the prompt (occipital → temporal)
+      ['semantic', 'workingmem'],      // topic knowledge activated
+      ['memory', 'semantic'],          // retrieve topic knowledge, experiences, vocabulary
+      ['memory', 'workingmem'],        // load content into active workspace
+      ['executive', 'workingmem'],     // planning: decide what to say, in what order (Hayes & Flower)
+      ['workingmem', 'syntactic'],     // grammatical encoding of intended content
+      ['syntactic', 'phonological'],   // phonological encoding / spelling (phoneme-to-grapheme)
+      ['phonological', 'workingmem'],  // subvocal rehearsal of sentence being composed
+      ['workingmem', 'motor'],         // execute handwriting or typing
+      ['executive', 'motor'],          // initiate and monitor writing act
+      ['motor', 'visual'],             // visual feedback: see what you wrote (the review loop)
+      ['emotional', 'executive'],      // motivation, frustration tolerance, engagement regulation
+    ],
+    desc: 'The most demanding cognitive task \u2014 activates 9 modules. <strong>Visual cortex</strong> reads the prompt. <strong>Semantic network (anterior temporal lobe)</strong> comprehends it. <strong>Hippocampus</strong> retrieves topic knowledge, and per Hayes & Flower\u2019s model, <strong>executive control (anterior PFC)</strong> plans the message \u2014 what to say, for whom, in what order. <strong>Working memory (dlPFC)</strong> juggles content, language, and mechanics simultaneously. <strong>Broca\u2019s area</strong> performs grammatical encoding, the <strong>phonological system (supramarginal gyrus)</strong> handles spelling via phoneme-to-grapheme conversion. <strong>Motor cortex and cerebellum</strong> execute handwriting or typing. The critical review loop: <strong>visual cortex</strong> reads the output back, feeding into <strong>executive control</strong> for error detection and revision.',
+    bridges: [
+      { label: 'Semantic \u2192 Syntactic', desc: 'Idea-to-sentence via Broca\u2019s area. The most cognitively demanding step in writing. Breakdown = written agrammatism.' },
+      { label: 'Phonological \u2192 Motor', desc: 'Spelling to physical writing (supramarginal gyrus \u2192 motor cortex). Breakdown = dysgraphia.' },
+      { label: 'Motor \u2192 Visual', desc: 'The review loop. Seeing your written output re-enters the visual system for proofreading. Unique to writing vs. speech.' }
+    ]
+  },
+  attention: {
+    name: 'Sustained Attention',
+    title: 'Sustained Attention: The Orchestration System',
+    activeModules: ['visual', 'auditory', 'emotional', 'executive', 'workingmem', 'memory', 'motor'],
+    sequence: { visual: 1, auditory: 1, emotional: 2, executive: 3, workingmem: 3, memory: 4, motor: 5 },
+    activePaths: [
+      ['visual', 'workingmem'],        // visual stream enters working memory
+      ['auditory', 'workingmem'],      // auditory stream enters working memory
+      ['workingmem', 'executive'],     // executive monitors for targets (Posner's executive network)
+      ['executive', 'workingmem'],     // top-down maintenance of task set
+      ['emotional', 'executive'],      // arousal/motivation modulates sustained effort (LC-NE system)
+      ['emotional', 'workingmem'],     // reward signals reinforce task maintenance
+      ['workingmem', 'memory'],        // target template retrieved from LTM
+      ['memory', 'workingmem'],        // "what am I looking for?" loaded from stored goals
+      ['executive', 'motor'],          // response execution upon target detection
+    ],
+    desc: 'Per Posner & Petersen\u2019s attentional networks model: <strong>visual and auditory cortices</strong> provide the ongoing sensory stream to be monitored. <strong>The emotional system (amygdala, ventral striatum)</strong> evaluates motivational significance and modulates arousal \u2014 too little and attention drifts, too much and it narrows. <strong>Executive control (anterior cingulate)</strong> detects targets, resolves conflicts, and sends top-down biasing signals to sensory cortices (Corbetta & Shulman\u2019s dorsal/ventral attention networks). <strong>Working memory (dlPFC)</strong> maintains the target template and task rules. <strong>Hippocampus</strong> stores the task goals. The whole system cycles continuously: bottom-up sensory input is filtered by top-down executive control, sustained by emotional/motivational drive.',
+    bridges: [
+      { label: 'Executive \u2192 Working Memory', desc: 'The regulation bridge. ADHD = breakdown here. Individual modules work, but the orchestration between them fails.' },
+      { label: 'Emotional \u2192 Executive', desc: 'Self-regulation bridge (amygdala/LC \u2192 ACC). Anxiety floods executive resources with threat signals. Boredom depletes drive.' },
+      { label: 'Sensory \u2192 Working Memory', desc: 'The gating bridge. Filtering relevant from irrelevant input. Breakdown = sensory overload, distractibility.' }
+    ]
+  },
+  decision: {
+    name: 'Decision Making',
+    title: 'Decision Making Under Uncertainty',
+    activeModules: ['visual', 'semantic', 'emotional', 'workingmem', 'executive', 'memory', 'motor'],
+    sequence: { visual: 1, semantic: 2, memory: 3, emotional: 3, workingmem: 4, executive: 5, motor: 6 },
+    activePaths: [
+      ['visual', 'semantic'],          // perceive and comprehend options
+      ['semantic', 'workingmem'],      // load choice meanings into workspace
+      ['semantic', 'emotional'],       // emotional valence of each option
+      ['emotional', 'memory'],         // past emotional outcomes retrieved
+      ['emotional', 'workingmem'],     // somatic markers bias working memory (Damasio)
+      ['emotional', 'executive'],      // value signals reach decision gate
+      ['memory', 'semantic'],          // past outcomes inform current meaning
+      ['memory', 'workingmem'],        // episodic recall of similar decisions
+      ['workingmem', 'executive'],     // ACC monitors conflict between alternatives
+      ['executive', 'workingmem'],     // iterative re-evaluation before committing
+      ['executive', 'motor'],          // execute chosen action
+    ],
+    desc: '<strong>Visual cortex (V1\u2013V5)</strong> perceives the available options. <strong>Semantic networks (anterior temporal, angular gyrus)</strong> comprehend their meaning. The <strong>hippocampus</strong> retrieves memories of past decisions and outcomes, while the <strong>emotional system \u2014 particularly the orbitofrontal cortex (OFC) and ventral striatum</strong> \u2014 assigns subjective value to each option through Damasio\u2019s somatic marker mechanism. <strong>Working memory (dlPFC)</strong> holds competing alternatives while <strong>executive control (ACC)</strong> monitors conflict between options and commits when evidence is sufficient. The process is iterative: executive control continuously re-queries working memory and emotional valuation before committing to action via <strong>motor cortex</strong>.',
+    bridges: [
+      { label: 'Emotional \u2192 Working Memory', desc: 'The somatic marker bridge. OFC damage (Phineas Gage) leaves logic intact but devastates decisions \u2014 Iowa Gambling Task failures because value signals can\u2019t reach working memory.' },
+      { label: 'Working Memory \u2192 Executive', desc: 'Conflict monitoring gateway. In OCD, the ACC chronically signals \u201csomething is wrong,\u201d causing pathological indecisiveness and checking behavior.' },
+      { label: 'Memory \u2192 Semantic', desc: 'Experience-based valuation. Hippocampal amnesia impairs future-oriented decisions \u2014 can\u2019t simulate outcomes without episodic \u201cmental time travel.\u201d' }
+    ]
+  },
+  problemsolving: {
+    name: 'Problem Solving',
+    title: 'Novel Problem Solving and Reasoning',
+    activeModules: ['visual', 'semantic', 'spatial', 'workingmem', 'executive', 'memory', 'motor'],
+    sequence: { visual: 1, semantic: 2, memory: 2, spatial: 3, workingmem: 4, executive: 5, motor: 6 },
+    activePaths: [
+      ['visual', 'semantic'],          // encode problem elements
+      ['visual', 'spatial'],           // spatial structure of the problem
+      ['semantic', 'workingmem'],      // known concepts loaded
+      ['memory', 'semantic'],          // search for analogous past solutions
+      ['memory', 'workingmem'],        // load relevant knowledge
+      ['spatial', 'workingmem'],       // spatial manipulation held in workspace
+      ['workingmem', 'executive'],     // sequencing, strategy selection
+      ['executive', 'workingmem'],     // strategy switching when approach fails
+      ['executive', 'semantic'],       // top-down re-retrieval
+      ['workingmem', 'motor'],         // produce answer
+      ['executive', 'motor'],          // execute solution
+    ],
+    desc: 'Facing a novel challenge with no known procedure recruits a broad <strong>frontoparietal network</strong>. <strong>Visual cortex</strong> encodes the problem\u2019s elements, interpreted through <strong>semantic networks (anterior temporal, angular gyrus)</strong>. The <strong>hippocampus</strong> searches for analogous past experiences that might transfer. The <strong>intraparietal sulcus (IPS)</strong> performs spatial and relational reasoning \u2014 mentally rotating, simulating sequences, mapping abstract structure. <strong>Working memory (dlPFC)</strong> holds the evolving problem state while <strong>executive control (anterior PFC, ACC)</strong> orchestrates hypothesis generation, mental testing, and strategy revision. Unlike routine math, no algorithm is available \u2014 the solver must construct one from scratch.',
+    bridges: [
+      { label: 'Spatial \u2192 Working Memory', desc: 'Mental model construction. Parietal damage disrupts ability to build internal simulations. Seen in constructional apraxia and mechanical reasoning failures.' },
+      { label: 'Executive \u2192 Working Memory', desc: 'Strategy switching loop. Frontal damage causes perseveration \u2014 repeating failed strategies (Wisconsin Card Sorting Task). Hallmark of dysexecutive syndrome.' },
+      { label: 'Memory \u2192 Working Memory', desc: 'Analogical transfer. Hippocampal damage blocks flexible recombination of stored knowledge into novel configurations. Expertise helps because it provides more templates.' }
+    ]
+  },
+  conversation: {
+    name: 'Conversation',
+    title: 'Interactive Conversational Exchange',
+    activeModules: ['auditory', 'phonological', 'semantic', 'syntactic', 'workingmem', 'executive', 'emotional', 'memory', 'motor'],
+    sequence: { auditory: 1, phonological: 2, semantic: 3, emotional: 3, memory: 4, workingmem: 5, executive: 6, syntactic: 7, motor: 8 },
+    activePaths: [
+      ['auditory', 'phonological'],    // decode partner's speech
+      ['phonological', 'semantic'],    // extract word meaning
+      ['phonological', 'workingmem'], // hold speech stream
+      ['semantic', 'emotional'],       // process social-emotional tone
+      ['semantic', 'workingmem'],      // meaning into workspace
+      ['emotional', 'memory'],         // retrieve social context
+      ['emotional', 'workingmem'],     // affective state biases response
+      ['emotional', 'executive'],      // social appropriateness filter
+      ['memory', 'semantic'],          // shared conversational history
+      ['memory', 'workingmem'],        // episodic context
+      ['workingmem', 'executive'],     // plan response, manage turn-taking
+      ['executive', 'workingmem'],     // inhibit premature responses
+      ['workingmem', 'syntactic'],     // grammatical encoding of reply
+      ['syntactic', 'phonological'],   // phonological output encoding
+      ['phonological', 'motor'],       // articulatory plan
+      ['executive', 'motor'],          // initiate speech at right moment
+      ['motor', 'auditory'],           // self-monitoring loop
+    ],
+    desc: 'The most demanding cognitive task \u2014 requiring rapid alternation between comprehension and production within a social context. <strong>Auditory cortex (Heschl\u2019s gyrus, STG)</strong> receives the partner\u2019s speech, decoded by the <strong>phonological system (posterior STG)</strong>. <strong>Semantic networks</strong> extract meaning while the <strong>emotional system (insula, amygdala)</strong> simultaneously processes affective prosody \u2014 sarcasm, urgency, warmth. The <strong>hippocampus</strong> retrieves shared conversational history. <strong>Working memory (dlPFC)</strong> juggles the partner\u2019s message, the topic model, and the emerging response. <strong>Executive control (ACC)</strong> manages turn-taking \u2014 listeners plan responses 500\u2013600ms before the turn ends. <strong>Broca\u2019s area</strong> constructs the reply\u2019s syntax, <strong>motor cortex</strong> executes speech, and the <strong>auditory feedback loop</strong> monitors output. The entire cycle repeats every few seconds.',
+    bridges: [
+      { label: 'Semantic \u2192 Emotional', desc: 'Pragmatic-affective bridge. Right hemisphere processes irony, implication, indirect requests. Right hemisphere stroke patients miss social nuance entirely \u2014 sometimes more disabling than aphasia.' },
+      { label: 'Working Memory \u2192 Executive', desc: 'Turn-taking control. ADHD impairs this: individuals interrupt and blurt not from social indifference but from a timing/inhibition deficit in prefrontal cortex.' },
+      { label: 'Emotional \u2192 Memory', desc: 'Social context retrieval. Amygdala tags interactions with emotional significance for hippocampal storage. Atypical connectivity here contributes to social reciprocity difficulties in autism.' }
+    ]
+  },
+  creative: {
+    name: 'Creative Thinking',
+    title: 'Creative Idea Generation',
+    activeModules: ['semantic', 'memory', 'workingmem', 'executive', 'emotional', 'syntactic', 'motor'],
+    sequence: { executive: 1, semantic: 2, memory: 2, emotional: 3, workingmem: 4, syntactic: 5, motor: 6 },
+    activePaths: [
+      ['executive', 'semantic'],       // controlled defocusing \u2014 relax semantic constraints
+      ['semantic', 'workingmem'],      // broad concept activation
+      ['semantic', 'emotional'],       // novelty detection
+      ['memory', 'semantic'],          // remote associations retrieved
+      ['memory', 'workingmem'],        // episodic fragments recombined
+      ['emotional', 'workingmem'],     // ventral striatum tags promising combinations
+      ['emotional', 'executive'],      // \u201caha\u201d signal reaches decision gate
+      ['emotional', 'memory'],         // reward strengthens novel memory traces
+      ['workingmem', 'executive'],     // evaluate and refine ideas
+      ['executive', 'workingmem'],     // iterative divergent-convergent cycle
+      ['workingmem', 'syntactic'],     // formulate idea into language
+      ['syntactic', 'workingmem'],     // rehearsal refines expression
+      ['workingmem', 'motor'],         // produce creative output
+    ],
+    desc: 'One of the rare <strong>internally generated</strong> cognitive tasks. <strong>Executive control (anterior PFC)</strong> initiates an open-ended goal and \u2014 crucially \u2014 relaxes the normally tight constraints on <strong>semantic activation (anterior temporal lobe, angular gyrus)</strong>, allowing spread across distant conceptual neighborhoods. The <strong>hippocampus</strong> retrieves remote, seemingly unrelated memories for novel recombination. The <strong>emotional system</strong> plays a dual role: the <strong>ventral striatum</strong> generates the \u201caha\u201d reward signal when a novel combination feels promising, while the <strong>OFC</strong> evaluates worth. <strong>Working memory (dlPFC)</strong> holds nascent ideas for iterative refinement \u2014 divergent generation followed by convergent selection. Neuroimaging shows highly creative individuals have increased <strong>default mode\u2013executive network coupling</strong> \u2014 the ability to freely associate while simultaneously evaluating.',
+    bridges: [
+      { label: 'Executive \u2192 Semantic', desc: 'Controlled defocusing. Early frontotemporal dementia can produce a burst of artistic creativity before decline. Brainstorming\u2019s \u201csuspend judgment\u201d instruction works by reducing prefrontal gating.' },
+      { label: 'Emotional \u2192 Working Memory', desc: 'Novelty-value signal. In anhedonia (depression), blunted reward signal kills creative drive. Mild dopamine elevation in hypomania enhances creative output \u2014 the bipolar-creativity link.' },
+      { label: 'Memory \u2192 Semantic', desc: 'Remote association pipeline. REM sleep strengthens remote associations by replaying hippocampal traces in new configurations \u2014 why creative breakthroughs follow incubation and sleep.' }
+    ]
+  },
+  navigation: {
+    name: 'Navigation',
+    title: 'Spatial Navigation and Wayfinding',
+    activeModules: ['visual', 'spatial', 'memory', 'workingmem', 'executive', 'semantic', 'motor'],
+    sequence: { visual: 1, spatial: 2, memory: 3, semantic: 3, workingmem: 4, executive: 5, motor: 6 },
+    activePaths: [
+      ['visual', 'spatial'],           // scene → egocentric spatial map
+      ['visual', 'semantic'],          // landmark recognition
+      ['visual', 'workingmem'],        // visual scene held in workspace
+      ['spatial', 'workingmem'],       // spatial coordinates maintained
+      ['spatial', 'motor'],            // direct visuomotor guidance
+      ['memory', 'semantic'],          // stored route knowledge
+      ['memory', 'workingmem'],        // hippocampal place cells → cognitive map
+      ['semantic', 'workingmem'],      // landmark meanings integrated
+      ['workingmem', 'executive'],     // plan route, monitor progress
+      ['executive', 'workingmem'],     // replan when wrong turn detected
+      ['executive', 'motor'],          // initiate movement
+      ['workingmem', 'motor'],         // execute locomotion
+      ['workingmem', 'memory'],        // encode new spatial memories
+      ['motor', 'visual'],             // sensorimotor update loop
+    ],
+    desc: 'Engages one of the brain\u2019s most evolutionarily ancient systems. <strong>Visual cortex (V1\u2013V5)</strong> processes the environmental scene, feeding the <strong>posterior parietal cortex and intraparietal sulcus (IPS)</strong> to construct an egocentric spatial representation. The <strong>hippocampus and entorhinal cortex</strong> are central: hippocampal place cells fire at specific locations, entorhinal grid cells provide a metric coordinate system, and together they maintain an allocentric cognitive map (O\u2019Keefe & Moser, Nobel Prize 2014). <strong>Semantic networks (angular gyrus)</strong> identify landmark meanings. <strong>Working memory (dlPFC)</strong> holds current position, destination, and waypoints. <strong>Executive control (ACC)</strong> plans routes and replans when obstacles appear. <strong>Motor cortex (premotor, M1, cerebellum)</strong> executes locomotion, with the <strong>motor\u2192visual feedback loop</strong> continuously updating the spatial model. This task is uniquely hippocampus-dependent.',
+    bridges: [
+      { label: 'Spatial \u2192 Working Memory', desc: 'Cognitive map maintenance. Parietal damage causes topographical disorientation \u2014 landmarks are seen but spatial relationships are meaningless. Hemispatial neglect makes navigation dangerous.' },
+      { label: 'Memory \u2192 Working Memory', desc: 'Hippocampal place system. London taxi drivers have enlarged posterior hippocampi. Early Alzheimer\u2019s targets entorhinal cortex first \u2014 getting lost in familiar places is often the earliest symptom.' },
+      { label: 'Motor \u2192 Visual', desc: 'Sensorimotor update loop. Motor commands predict visual scene changes. Disruption causes spatial disorientation and visual vertigo. This is why passengers get carsick more than drivers.' }
+    ]
+  }
+};
+
+// ══════════════════════════════════════════════════
+// UTILITIES
+// ══════════════════════════════════════════════════
+function hexToRgb(hex) {
+  const r = parseInt(hex.slice(1, 3), 16);
+  const g = parseInt(hex.slice(3, 5), 16);
+  const b = parseInt(hex.slice(5, 7), 16);
+  return { r, g, b };
+}
+
+function colorAlpha(hex, a) {
+  const { r, g, b } = hexToRgb(hex);
+  return `rgba(${r},${g},${b},${a})`;
+}
+
+const prefersReducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+
+// ══════════════════════════════════════════════════
+// RENDER TIER BANDS + SIDE RAIL
+// ══════════════════════════════════════════════════
+const diagram = document.getElementById('diagram');
+
+const tierBands = [
+  { label: 'Sensory Input',     yStart: 0,  yEnd: 15 },
+  { label: 'Early Processing',  yStart: 15, yEnd: 32 },
+  { label: 'Deep Processing',   yStart: 32, yEnd: 50 },
+  { label: 'Integration',       yStart: 50, yEnd: 68 },
+  { label: 'Output',            yStart: 68, yEnd: 100 },
+];
+
+tierBands.forEach((tier, i) => {
+  const band = document.createElement('div');
+  band.className = 'tier-band';
+  band.style.top = tier.yStart + '%';
+  band.style.height = (tier.yEnd - tier.yStart) + '%';
+  if (i < tierBands.length - 1) {
+    band.style.borderBottom = '1px solid var(--border)';
+  } else {
+    band.style.borderBottom = 'none';
+  }
+  const label = document.createElement('div');
+  label.className = 'tier-label';
+  label.textContent = tier.label;
+  band.appendChild(label);
+  diagram.insertBefore(band, diagram.firstChild);
+});
+
+// Side rail
+const srBorder = document.createElement('div');
+srBorder.className = 'side-rail-border';
+diagram.appendChild(srBorder);
+const srLabel = document.createElement('div');
+srLabel.className = 'side-rail-label';
+srLabel.textContent = 'Modulation';
+diagram.appendChild(srLabel);
+
+// Flow chevrons
+[16, 33, 51, 69].forEach(y => {
+  const chev = document.createElement('div');
+  chev.className = 'flow-chevron';
+  chev.style.top = y + '%';
+  chev.textContent = '\u25BE'; // downward triangle
+  diagram.appendChild(chev);
+});
+
+// ══════════════════════════════════════════════════
+// RENDER TASK BUTTONS
+// ══════════════════════════════════════════════════
+const taskBar = document.getElementById('taskBar');
+const taskKeys = Object.keys(tasks);
+taskKeys.forEach((key, i) => {
+  const task = tasks[key];
+  const btn = document.createElement('button');
+  btn.className = 'task-btn';
+  btn.textContent = task.name;
+  btn.dataset.task = key;
+  btn.setAttribute('role', 'tab');
+  btn.setAttribute('aria-selected', 'false');
+  btn.setAttribute('tabindex', i === 0 ? '0' : '-1');
+  btn.addEventListener('click', () => activateTask(key));
+  taskBar.appendChild(btn);
+});
+
+taskBar.addEventListener('keydown', (e) => {
+  const btns = [...taskBar.querySelectorAll('.task-btn')];
+  const cur = btns.findIndex(b => b === document.activeElement);
+  if (cur === -1) return;
+  let next = -1;
+  if (e.key === 'ArrowRight' || e.key === 'ArrowDown') next = (cur + 1) % btns.length;
+  else if (e.key === 'ArrowLeft' || e.key === 'ArrowUp') next = (cur - 1 + btns.length) % btns.length;
+  else if (e.key === 'Escape') { deactivateAll(); return; }
+  else if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); btns[cur].click(); return; }
+  else return;
+  e.preventDefault();
+  btns[cur].setAttribute('tabindex', '-1');
+  btns[next].setAttribute('tabindex', '0');
+  btns[next].focus();
+});
+
+// ══════════════════════════════════════════════════
+// RENDER MODULES
+// ══════════════════════════════════════════════════
+Object.entries(modules).forEach(([key, mod]) => {
+  const el = document.createElement('div');
+  el.className = 'module';
+  el.id = `mod-${key}`;
+  el.style.left = mod.x + '%';
+  el.style.top = mod.y + '%';
+  el.style.setProperty('--module-color', mod.color);
+  el.setAttribute('tabindex', '0');
+  el.setAttribute('role', 'button');
+  el.setAttribute('aria-label', `${mod.name} module \u2014 ${mod.tag}`);
+  el.innerHTML = `
+    <div class="module-indicator"></div>
+    <div class="seq"></div>
+    <div class="tag">${mod.tag}</div>
+    <div class="name">${mod.name}</div>
+    <div class="region">${mod.region}</div>
+    <div class="desc">${mod.desc}</div>
+  `;
+  el.addEventListener('mouseenter', () => {
+    if (!activeTask) {
+      highlightModuleConnections(key, true);
+      updateBrainHighlights([key]);
+    }
+  });
+  el.addEventListener('mouseleave', () => {
+    if (!activeTask) {
+      highlightModuleConnections(key, false);
+      updateBrainHighlights([]);
+    }
+  });
+  el.addEventListener('click', (e) => {
+    e.stopPropagation();
+    if (!activeTask) {
+      // No task active → select this brain region (same as clicking brain area)
+      selectBrainRegion(key);
+      return;
+    }
+    // Task is active → toggle expand for detail
+    const wasExpanded = el.classList.contains('expanded');
+    document.querySelectorAll('.module.expanded').forEach(m => m.classList.remove('expanded'));
+    if (!wasExpanded) {
+      el.classList.add('expanded');
+    }
+    setTimeout(drawConnections, 50);
+  });
+  diagram.appendChild(el);
+});
+
+// Click on diagram background to collapse expanded module
+diagram.addEventListener('click', (e) => {
+  if (e.target === diagram || e.target.classList.contains('tier-band') || e.target.closest('.tier-band')) {
+    document.querySelectorAll('.module.expanded').forEach(m => m.classList.remove('expanded'));
+    setTimeout(drawConnections, 50);
+  }
+});
+
+// Stagger entry
+document.querySelectorAll('.module').forEach((mod, i) => {
+  mod.style.opacity = '0';
+  mod.style.transform = 'translate(-50%, -50%) translateY(10px) scale(0.96)';
+  setTimeout(() => {
+    mod.style.transition = 'all 0.5s ease';
+    mod.style.opacity = '1';
+    mod.style.transform = 'translate(-50%, -50%) translateY(0) scale(1)';
+  }, 100 + i * 60);
+});
+
+// ══════════════════════════════════════════════════
+// CONNECTION RENDERING
+// ══════════════════════════════════════════════════
+const pathMap = new Map(); // "from->to" => SVG path element
+
+function getModuleCenter(id) {
+  const el = document.getElementById(`mod-${id}`);
+  if (!el) return { x: 0, y: 0 };
+  const cr = diagram.getBoundingClientRect();
+  const r = el.getBoundingClientRect();
+  return { x: r.left - cr.left + r.width / 2, y: r.top - cr.top + r.height / 2 };
+}
+
+function isSideRail(id) { return id === 'emotional' || id === 'memory'; }
+
+function buildPathD(fromId, toId) {
+  const a = getModuleCenter(fromId);
+  const b = getModuleCenter(toId);
+  const dx = b.x - a.x;
+  const dy = b.y - a.y;
+
+  // Side rail connections: gentle S-curve
+  if (isSideRail(fromId) || isSideRail(toId)) {
+    const cp1x = a.x + dx * 0.3;
+    const cp1y = a.y + dy * 0.1;
+    const cp2x = a.x + dx * 0.7;
+    const cp2y = b.y - dy * 0.1;
+    return `M${a.x},${a.y} C${cp1x},${cp1y} ${cp2x},${cp2y} ${b.x},${b.y}`;
+  }
+
+  // Primarily vertical paths (between tiers)
+  if (Math.abs(dy) > Math.abs(dx) * 0.4) {
+    const cp1x = a.x + dx * 0.15;
+    const cp1y = a.y + dy * 0.45;
+    const cp2x = b.x - dx * 0.15;
+    const cp2y = b.y - dy * 0.45;
+    return `M${a.x},${a.y} C${cp1x},${cp1y} ${cp2x},${cp2y} ${b.x},${b.y}`;
+  }
+
+  // Same-tier horizontal: gentle arc
+  const mx = (a.x + b.x) / 2;
+  const offset = Math.abs(dy) * 0.3 + 15;
+  return `M${a.x},${a.y} Q${mx},${(a.y + b.y) / 2 - offset} ${b.x},${b.y}`;
+}
+
+function drawConnections() {
+  const svg = document.getElementById('connections');
+  const cr = diagram.getBoundingClientRect();
+  svg.setAttribute('viewBox', `0 0 ${cr.width} ${cr.height}`);
+  svg.innerHTML = '';
+  pathMap.clear();
+
+  // Arrowhead defs
+  const defs = document.createElementNS('http://www.w3.org/2000/svg', 'defs');
+  const usedColors = new Set();
+  Object.values(modules).forEach(m => usedColors.add(m.color));
+  usedColors.forEach(color => {
+    const marker = document.createElementNS('http://www.w3.org/2000/svg', 'marker');
+    const cid = color.replace('#', '');
+    marker.setAttribute('id', `arrow-${cid}`);
+    marker.setAttribute('viewBox', '0 0 8 6');
+    marker.setAttribute('refX', '7');
+    marker.setAttribute('refY', '3');
+    marker.setAttribute('markerWidth', '8');
+    marker.setAttribute('markerHeight', '6');
+    marker.setAttribute('orient', 'auto-start-reverse');
+    const poly = document.createElementNS('http://www.w3.org/2000/svg', 'polygon');
+    poly.setAttribute('points', '0,0 8,3 0,6');
+    poly.setAttribute('fill', color);
+    marker.appendChild(poly);
+    defs.appendChild(marker);
+  });
+  svg.appendChild(defs);
+
+  connections.forEach(([from, to]) => {
+    const d = buildPathD(from, to);
+    const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+    path.setAttribute('d', d);
+    path.dataset.from = from;
+    path.dataset.to = to;
+    if (feedbackPaths.has(`${from}->${to}`)) {
+      path.classList.add('feedback-path');
+    }
+    svg.appendChild(path);
+    pathMap.set(`${from}->${to}`, path);
+  });
+}
+
+function highlightModuleConnections(moduleId, active) {
+  document.querySelectorAll('#connections path').forEach(path => {
+    if (path.dataset.from === moduleId || path.dataset.to === moduleId) {
+      if (active) {
+        path.style.stroke = modules[moduleId].color;
+        path.style.opacity = '0.6';
+        path.style.strokeWidth = '1.5';
+      } else {
+        path.style.stroke = '';
+        path.style.opacity = '';
+        path.style.strokeWidth = '';
+      }
+    }
+  });
+}
+
+setTimeout(drawConnections, 120);
+window.addEventListener('resize', () => {
+  clearTimeout(window._rt);
+  window._rt = setTimeout(() => {
+    drawConnections();
+    resizeCanvas();
+    if (activeTask) presampleActivePaths();
+  }, 150);
+});
+
+// ══════════════════════════════════════════════════
+// PARTICLE SYSTEM
+// ══════════════════════════════════════════════════
+const canvas = document.getElementById('particleCanvas');
+const ctx = canvas.getContext('2d');
+let particles = [];
+let emitters = [];
+let particleRunning = false;
+let lastFrame = 0;
+const MAX_PARTICLES = 45;
+
+// Pre-sampled path data for performance
+const sampledPaths = new Map(); // key => { points: [{x,y}...], length }
+
+function resizeCanvas() {
+  const rect = diagram.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  canvas.width = rect.width * dpr;
+  canvas.height = rect.height * dpr;
+  canvas.style.width = rect.width + 'px';
+  canvas.style.height = rect.height + 'px';
+  ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+resizeCanvas();
+
+function presamplePath(pathEl, key) {
+  const len = pathEl.getTotalLength();
+  const numSamples = 80;
+  const points = [];
+  for (let i = 0; i <= numSamples; i++) {
+    const p = pathEl.getPointAtLength((i / numSamples) * len);
+    points.push({ x: p.x, y: p.y });
+  }
+  sampledPaths.set(key, { points, length: len });
+}
+
+function presampleActivePaths() {
+  sampledPaths.clear();
+  if (!activeTask) return;
+  const task = tasks[activeTask];
+  task.activePaths.forEach(([from, to]) => {
+    const key = `${from}->${to}`;
+    const pathEl = pathMap.get(key) || pathMap.get(`${to}->${from}`);
+    if (pathEl) presamplePath(pathEl, key);
+  });
+}
+
+function getPointOnSampled(key, progress) {
+  const data = sampledPaths.get(key);
+  if (!data) return null;
+  const t = Math.max(0, Math.min(1, progress / data.length));
+  const idx = t * (data.points.length - 1);
+  const i = Math.floor(idx);
+  const frac = idx - i;
+  const p0 = data.points[Math.min(i, data.points.length - 1)];
+  const p1 = data.points[Math.min(i + 1, data.points.length - 1)];
+  return { x: p0.x + (p1.x - p0.x) * frac, y: p0.y + (p1.y - p0.y) * frac };
+}
+
+function createParticle(pathKey, color, reverse) {
+  const data = sampledPaths.get(pathKey);
+  if (!data) return null;
+  return {
+    pathKey,
+    color,
+    progress: reverse ? data.length : 0,
+    speed: (1.2 + Math.random() * 0.8) * (reverse ? -1 : 1),
+    radius: 2.5 + Math.random() * 1.5,
+    alive: true,
+    trail: [],
+    trailMax: 6,
+    length: data.length,
+    reverse
+  };
+}
+
+function particleLoop(ts) {
+  if (!particleRunning) return;
+  const dt = Math.min(ts - lastFrame, 33);
+  lastFrame = ts;
+
+  ctx.clearRect(0, 0, canvas.width / (window.devicePixelRatio || 1), canvas.height / (window.devicePixelRatio || 1));
+
+  // Update emitters
+  for (const em of emitters) {
+    em.elapsed += dt;
+    if (em.elapsed < em.delay) continue;
+    em.timeSinceLast += dt;
+    const interval = 1000 / em.rate;
+    while (em.timeSinceLast >= interval && particles.length < MAX_PARTICLES) {
+      const p = createParticle(em.pathKey, em.color, em.reverse);
+      if (p) particles.push(p);
+      em.timeSinceLast -= interval;
+    }
+  }
+
+  // Update + render particles
+  for (const p of particles) {
+    p.progress += p.speed * (dt / 16.67);
+    const pt = getPointOnSampled(p.pathKey, p.progress);
+    if (!pt) { p.alive = false; continue; }
+
+    p.trail.push({ x: pt.x, y: pt.y });
+    if (p.trail.length > p.trailMax) p.trail.shift();
+
+    if (!p.reverse && p.progress >= p.length) p.alive = false;
+    if (p.reverse && p.progress <= 0) p.alive = false;
+
+    // Draw trail
+    for (let i = 0; i < p.trail.length - 1; i++) {
+      const alpha = (i / p.trail.length) * 0.25;
+      ctx.beginPath();
+      ctx.arc(p.trail[i].x, p.trail[i].y, p.radius * 0.5, 0, Math.PI * 2);
+      ctx.fillStyle = colorAlpha(p.color, alpha);
+      ctx.fill();
+    }
+
+    // Glow
+    const head = p.trail[p.trail.length - 1];
+    if (head) {
+      ctx.beginPath();
+      ctx.arc(head.x, head.y, p.radius + 3, 0, Math.PI * 2);
+      ctx.fillStyle = colorAlpha(p.color, 0.12);
+      ctx.fill();
+
+      // Core
+      ctx.beginPath();
+      ctx.arc(head.x, head.y, p.radius, 0, Math.PI * 2);
+      ctx.fillStyle = colorAlpha(p.color, 0.85);
+      ctx.fill();
+    }
+  }
+
+  particles = particles.filter(p => p.alive);
+  requestAnimationFrame(particleLoop);
+}
+
+function startParticles() {
+  if (prefersReducedMotion) return;
+  particleRunning = true;
+  lastFrame = performance.now();
+  requestAnimationFrame(particleLoop);
+}
+
+function stopParticles() {
+  particleRunning = false;
+  particles = [];
+  emitters = [];
+  sampledPaths.clear();
+  ctx.clearRect(0, 0, canvas.width, canvas.height);
+}
+
+// Pause when tab hidden
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && particleRunning) {
+    particleRunning = false;
+  } else if (!document.hidden && activeTask) {
+    particleRunning = true;
+    lastFrame = performance.now();
+    requestAnimationFrame(particleLoop);
+  }
+});
+
+// ══════════════════════════════════════════════════
+// TASK ACTIVATION — CASCADE
+// ══════════════════════════════════════════════════
+let activeTask = null;
+let selectedBrainRegion = null;
+let cascadeTimers = [];
+
+function activateTask(taskKey) {
+  if (activeTask === taskKey) { deactivateAll(); return; }
+  deactivateAll();
+  setTimeout(() => applyCascade(taskKey), 60);
+}
+
+function applyCascade(taskKey) {
+  activeTask = taskKey;
+  const task = tasks[taskKey];
+  diagram.classList.add('has-active-task');
+
+  // Update buttons
+  document.querySelectorAll('.task-btn').forEach(btn => {
+    const isActive = btn.dataset.task === taskKey;
+    btn.classList.toggle('active', isActive);
+    btn.setAttribute('aria-selected', isActive ? 'true' : 'false');
+  });
+
+  // Dim non-active modules immediately
+  Object.keys(modules).forEach(key => {
+    const el = document.getElementById(`mod-${key}`);
+    if (!task.activeModules.includes(key)) {
+      el.classList.add('dimmed');
+    }
+  });
+
+  // Sort modules by sequence
+  const sequenced = Object.entries(task.sequence).sort(([, a], [, b]) => a - b);
+  const cascadeDelay = 350;
+
+  // Pre-sample paths and init particles
+  presampleActivePaths();
+  resizeCanvas();
+  emitters = [];
+  startParticles();
+
+  // Cascade: activate modules one by one
+  sequenced.forEach(([modKey, seqNum], index) => {
+    const timer = setTimeout(() => {
+      const el = document.getElementById(`mod-${modKey}`);
+      el.classList.add('active');
+      el.querySelector('.seq').textContent = seqNum;
+
+      // Activate paths FROM this module and start emitters
+      task.activePaths.forEach(([from, to]) => {
+        if (from === modKey || to === modKey) {
+          const key = `${from}->${to}`;
+          const pathEl = pathMap.get(key) || pathMap.get(`${to}->${from}`);
+          if (pathEl && !pathEl.classList.contains('active')) {
+            pathEl.classList.add('active');
+            const sourceColor = modules[from].color;
+            const cid = sourceColor.replace('#', '');
+            pathEl.style.stroke = sourceColor;
+            pathEl.style.filter = `drop-shadow(0 0 3px ${colorAlpha(sourceColor, 0.3)})`;
+
+            const isFeedback = feedbackPaths.has(key);
+
+            if (!isFeedback) {
+              pathEl.setAttribute('marker-end', `url(#arrow-${cid})`);
+            }
+
+            // Create emitter
+            if (sampledPaths.has(key)) {
+              emitters.push({
+                pathKey: key,
+                color: sourceColor,
+                rate: isFeedback ? 1.2 : 2,
+                reverse: isFeedback,
+                delay: index * cascadeDelay + 100,
+                elapsed: 0,
+                timeSinceLast: 1000 // emit immediately after delay
+              });
+            }
+          }
+        }
+      });
+    }, index * cascadeDelay);
+    cascadeTimers.push(timer);
+  });
+
+  // Info panel — show after cascade begins
+  const infoTimer = setTimeout(() => {
+    const card = document.getElementById('infoCard');
+    card.innerHTML = `
+      <div class="info-flow">
+        <h3>Information Flow</h3>
+        <div class="task-title">${task.title}</div>
+        <div class="flow-desc">${task.desc}</div>
+      </div>
+      <div class="info-bridges">
+        <h4>Critical Bridges</h4>
+        ${task.bridges.map(b => `
+          <div class="bridge-item">
+            <div class="bridge-label">${b.label}</div>
+            <div class="bridge-desc">${b.desc}</div>
+          </div>
+        `).join('')}
+      </div>
+    `;
+    card.classList.remove('visible');
+    requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('visible')));
+  }, sequenced.length * cascadeDelay * 0.4);
+  cascadeTimers.push(infoTimer);
+}
+
+function deactivateAll() {
+  activeTask = null;
+  selectedBrainRegion = null;
+  cascadeTimers.forEach(t => clearTimeout(t));
+  cascadeTimers = [];
+  diagram.classList.remove('has-active-task');
+  document.querySelectorAll('.module.expanded').forEach(m => m.classList.remove('expanded'));
+  stopParticles();
+
+  document.querySelectorAll('.task-btn').forEach(b => {
+    b.classList.remove('active');
+    b.setAttribute('aria-selected', 'false');
+  });
+  document.querySelectorAll('.module').forEach(m => {
+    m.classList.remove('active', 'dimmed');
+    m.style.transitionDelay = '0s';
+    m.querySelector('.seq').textContent = '';
+  });
+  document.querySelectorAll('#connections path').forEach(p => {
+    p.classList.remove('active');
+    p.style.stroke = '';
+    p.style.filter = '';
+    p.removeAttribute('marker-end');
+  });
+  document.getElementById('infoCard').classList.remove('visible');
+  stopBrainParticles();
+  updateBrainHighlights([]);
+}
+
+// ══════════════════════════════════════════════════
+// BRAIN ANATOMY — Legend + Highlighting
+// ══════════════════════════════════════════════════
+
+// Build legend
+const brainLegend = document.getElementById('brainLegend');
+const brainModuleMap = [
+  { id: 'visual', label: 'Visual Cortex (V1–V5)', color: '#4a9eff' },
+  { id: 'auditory', label: 'Auditory Cortex (A1, STG)', color: '#00d4aa' },
+  { id: 'spatial', label: 'Posterior Parietal (IPS)', color: '#ffcc33' },
+  { id: 'phonological', label: 'Posterior STG / SMG', color: '#9b6dff' },
+  { id: 'semantic', label: 'Anterior Temporal Lobe', color: '#ff8844' },
+  { id: 'syntactic', label: 'Broca\'s Area (BA 44/45)', color: '#ff5599' },
+  { id: 'workingmem', label: 'Dorsolateral PFC', color: '#4a9eff' },
+  { id: 'executive', label: 'Anterior PFC / ACC', color: '#ff4466' },
+  { id: 'motor', label: 'Motor Cortex (M1, SMA)', color: '#44dd88' },
+  { id: 'emotional', label: 'Amygdala / Insula (deep)', color: '#ff5599' },
+  { id: 'memory', label: 'Hippocampus (deep)', color: '#9b6dff' },
+];
+
+brainModuleMap.forEach(({ id, label, color }) => {
+  const item = document.createElement('div');
+  item.className = 'brain-legend-item';
+  item.dataset.module = id;
+  item.innerHTML = `<span class="legend-dot" style="background:${color}"></span>${label}`;
+  // Hover legend item → highlight brain region + module above
+  item.addEventListener('mouseenter', () => {
+    if (selectedBrainRegion) return;
+    updateBrainHighlights([id]);
+    highlightModuleConnections(id, true);
+    const modEl = document.getElementById(`mod-${id}`);
+    if (modEl && !modEl.classList.contains('dimmed')) {
+      modEl.style.transform = 'translate(-50%, -50%) scale(1.06)';
+      modEl.style.boxShadow = '0 6px 20px var(--module-shadow)';
+    }
+  });
+  item.addEventListener('mouseleave', () => {
+    if (selectedBrainRegion) return;
+    if (!activeTask) {
+      updateBrainHighlights([]);
+      highlightModuleConnections(id, false);
+      const modEl = document.getElementById(`mod-${id}`);
+      if (modEl) { modEl.style.transform = ''; modEl.style.boxShadow = ''; }
+    } else {
+      updateBrainHighlights(tasks[activeTask].activeModules);
+    }
+  });
+  item.addEventListener('click', () => selectBrainRegion(id));
+  item.style.cursor = 'pointer';
+  brainLegend.appendChild(item);
+});
+
+// ── Brain region detail data ──
+const brainRegionDetails = {
+  visual: {
+    title: 'Visual Cortex',
+    anatomy: 'Primary visual cortex (V1) at the occipital pole, surrounding association areas V2–V5. The Visual Word Form Area (VWFA) in left fusiform gyrus specializes in orthographic processing.',
+    desc: 'Performs <strong>hierarchical feature extraction</strong> from retinal input: V1 detects edges and orientation, V2 processes contours, V4 handles color and form, V5/MT processes motion. In reading, the VWFA acts as a learned \"letterbox\" — recognizing letter strings as visual word forms before passing them to the language system. This is not an innate module but a region that becomes specialized through literacy training, recycling circuits originally evolved for object recognition.',
+    clinical: 'Damage to V1 causes cortical blindness. Damage to the VWFA causes pure alexia (letter-by-letter reading) — the patient can write but cannot read. V5 damage causes akinetopsia (motion blindness).',
+    color: '#4a9eff'
+  },
+  auditory: {
+    title: 'Auditory Cortex',
+    anatomy: 'Primary auditory cortex (A1) in Heschl\'s gyrus on the superior temporal plane, with belt and parabelt association areas extending along the superior temporal gyrus.',
+    desc: 'Performs <strong>spectrotemporal analysis</strong> of acoustic input: extracting pitch, timing, loudness, and timbre from the incoming sound stream. A1 is tonotopically organized — different frequencies map to different locations along the cortical surface. The surrounding belt areas progressively extract more complex features: phoneme boundaries, voice identity, and spatial location of sounds. Critical for speech perception but also music, environmental sounds, and auditory scene analysis.',
+    clinical: 'Bilateral damage causes cortical deafness. Unilateral left damage can cause word deafness — sounds are heard but speech cannot be decoded. Right hemisphere auditory cortex is particularly important for processing musical pitch and emotional prosody.',
+    color: '#00d4aa'
+  },
+  spatial: {
+    title: 'Posterior Parietal Cortex',
+    anatomy: 'Posterior parietal cortex including the intraparietal sulcus (IPS), superior parietal lobule, and the angular and supramarginal gyri. Bilateral but right-dominant for spatial tasks.',
+    desc: 'Processes <strong>spatial relationships, magnitude, and sensorimotor transformations</strong>. The intraparietal sulcus is critical for numerical magnitude representation — Dehaene\'s \"mental number line\" lives here. Also handles mental rotation, visuospatial attention, and reaching/grasping planning. Operates at a higher abstraction level than visual cortex — it represents \"where\" and \"how much\" rather than \"what.\" Strong connections to both frontal executive areas and visual cortex.',
+    clinical: 'Left IPS damage causes dyscalculia (Gerstmann syndrome) — loss of number sense despite intact language. Right parietal damage causes hemispatial neglect — the patient ignores the entire left side of space. Bilateral damage causes Balint\'s syndrome (simultanagnosia, optic ataxia).',
+    color: '#ffcc33'
+  },
+  phonological: {
+    title: 'Wernicke\'s Area / Posterior STG',
+    anatomy: 'Posterior superior temporal gyrus and supramarginal gyrus in the left hemisphere. Traditionally called \"Wernicke\'s area\" at the temporo-parietal junction. Connected to Broca\'s area via the arcuate fasciculus.',
+    desc: 'The core <strong>sound-to-language interface</strong>. Encodes, stores, and manipulates the sound-based representations of words (phonological representations). Contains Baddeley\'s phonological loop — a short-term buffer that can hold ~2 seconds of speech through articulatory rehearsal. Critical for grapheme-to-phoneme conversion (decoding written words into sounds), phonological awareness (manipulating speech sounds), and verbal short-term memory.',
+    clinical: 'Damage causes Wernicke\'s aphasia — fluent but meaningless speech with severely impaired comprehension. The patient speaks in well-formed sentences that make no sense, and cannot repeat words. Phonological processing deficits are the core mechanism in developmental dyslexia.',
+    color: '#9b6dff'
+  },
+  semantic: {
+    title: 'Anterior Temporal Lobe',
+    anatomy: 'Anterior and inferior temporal cortex, with the temporal pole acting as a semantic \"hub.\" Also involves the angular gyrus and distributed association cortex. Left-dominant for verbal semantics.',
+    desc: 'The brain\'s <strong>meaning system</strong> — stores and retrieves conceptual knowledge about words, objects, facts, and their associations. Patterson & Lambon Ralph\'s hub-and-spoke model proposes that the anterior temporal lobe acts as an amodal hub, integrating modality-specific feature information (what things look like, sound like, feel like) into unified concepts. Densely connected to nearly every other cortical region. This is where you know that a \"dog\" is furry, barks, is a pet, and is different from a \"wolf.\"',
+    clinical: 'Progressive damage (semantic dementia / semantic variant PPA) causes gradual loss of word meaning and object knowledge — patients lose concepts in order of specificity (\"poodle\" before \"dog\" before \"animal\"). Acute left temporal damage causes anomia (word-finding difficulty).',
+    color: '#ff8844'
+  },
+  syntactic: {
+    title: 'Broca\'s Area',
+    anatomy: 'Posterior inferior frontal gyrus, Brodmann areas 44 and 45. Left-lateralized in ~95% of right-handed individuals. Connected to Wernicke\'s area via the arcuate fasciculus (dorsal stream) and via ventral pathways.',
+    desc: 'Computes <strong>hierarchical grammatical structure</strong> for both comprehension and production. In comprehension, it parses incoming word sequences into syntactic trees (who did what to whom). In production, it performs Levelt\'s \"grammatical encoding\" — selecting lemmas and building syntactic frames. Also involved in phonological processing, verbal working memory, and action sequencing beyond language. Its role is better described as \"hierarchical structure building\" than just \"speech production.\"',
+    clinical: 'Damage causes Broca\'s aphasia — non-fluent, telegraphic speech with intact comprehension of simple sentences. Patients say \"dog... bite... man\" instead of \"The dog bit the man.\" Comprehension of complex syntax (\"The boy who the girl chased was tall\") is also impaired, revealing that Broca\'s area handles structure in both directions.',
+    color: '#ff5599'
+  },
+  workingmem: {
+    title: 'Dorsolateral Prefrontal Cortex',
+    anatomy: 'Lateral surface of the prefrontal cortex, Brodmann areas 9 and 46. Bilateral but often left-dominant for verbal working memory, right-dominant for spatial working memory.',
+    desc: 'The brain\'s <strong>central workspace</strong> — temporarily maintains and manipulates information for ongoing cognitive tasks. Per Baddeley\'s model, working memory includes the phonological loop (verbal rehearsal), the visuospatial sketchpad (spatial imagery), the episodic buffer (integrating different sources), and the central executive (control). Capacity-limited to ~4 chunks. This is where you hold a phone number while dialing, keep track of multiple conversation threads, or juggle the steps of a math problem.',
+    clinical: 'Dysfunction is central to ADHD (reduced dlPFC activation), schizophrenia (working memory deficits are a core cognitive symptom), and age-related cognitive decline. Working memory capacity is one of the strongest predictors of academic achievement and fluid intelligence.',
+    color: '#4a9eff'
+  },
+  executive: {
+    title: 'Anterior Prefrontal Cortex / ACC',
+    anatomy: 'Anterior (frontopolar) prefrontal cortex and anterior cingulate cortex (ACC). The ACC sits on the medial surface, wrapping around the corpus callosum. Together they form the highest level of the cortical control hierarchy.',
+    desc: 'The brain\'s <strong>supervisor and scheduler</strong>. The ACC monitors for conflicts and errors — detecting when things aren\'t going as planned. The anterior PFC handles goal maintenance, task switching, multitasking, and strategic planning. Together they implement Norman & Shallice\'s \"supervisory attentional system\" — overriding automatic routines when deliberate control is needed. This is the slowest, most effortful, and most fatigable system in the brain. It is what makes sustained concentration hard.',
+    clinical: 'ACC damage causes apathy, reduced motivation, and failure to correct errors. Prefrontal damage causes dysexecutive syndrome — inability to plan, organize, or inhibit inappropriate responses. Executive dysfunction is the common thread across ADHD, traumatic brain injury, and frontal lobe dementia.',
+    color: '#ff4466'
+  },
+  motor: {
+    title: 'Motor Cortex',
+    anatomy: 'Precentral gyrus (primary motor cortex / M1), premotor cortex, supplementary motor area (SMA), and the cerebellum. M1 is somatotopically organized (motor homunculus).',
+    desc: 'Plans, sequences, and executes <strong>voluntary movement</strong>. Premotor cortex selects and plans movements, SMA handles internally-generated action sequences, and M1 sends commands to muscles via the corticospinal tract. For speech: the ventral premotor area and Broca\'s area interface coordinate the ~100 muscles involved in articulation (larynx, tongue, lips, jaw, diaphragm). For writing: dorsal premotor handles the complex graphomotor programs. The cerebellum provides timing, coordination, and error correction through sensory feedback loops.',
+    clinical: 'M1 damage causes contralateral paralysis/weakness. Premotor damage causes apraxia — inability to perform skilled movements despite intact strength and comprehension. Cerebellar damage causes ataxia (clumsy, uncoordinated movement) and dysarthria (slurred speech).',
+    color: '#44dd88'
+  },
+  emotional: {
+    title: 'Limbic System (Amygdala, Insula)',
+    anatomy: 'Deep structures: amygdala (medial temporal lobe), insula (buried in the lateral sulcus), orbitofrontal cortex (ventral frontal surface), and ventral striatum (reward circuitry). These are NOT visible on the lateral cortical surface — they sit deep within the brain.',
+    desc: 'The brain\'s <strong>affective evaluation and modulation system</strong>. The amygdala rapidly evaluates the emotional significance and threat level of stimuli — it can influence processing before conscious awareness. The insula processes interoceptive signals (body states, gut feelings, pain, disgust). The orbitofrontal cortex links emotion to decision-making. The ventral striatum / nucleus accumbens drives reward-seeking and motivation via dopamine. This system is not separate from cognition — it continuously <strong>modulates</strong> how every other module operates, biasing attention, memory encoding, and decision-making.',
+    clinical: 'Amygdala damage eliminates fear responses (Urbach-Wiethe disease). Insula damage impairs recognition of disgust and pain empathy. Dysfunctional amygdala-PFC circuits underlie anxiety disorders, PTSD, and emotional dysregulation. Reward circuit dysfunction is central to addiction and depression.',
+    color: '#ff5599'
+  },
+  memory: {
+    title: 'Hippocampal Formation',
+    anatomy: 'Hippocampus, entorhinal cortex, perirhinal cortex, and parahippocampal cortex — located in the medial temporal lobe. Also NOT visible on the lateral surface. Connected to neocortex via the entorhinal cortex gateway.',
+    desc: 'The brain\'s <strong>memory encoding and consolidation engine</strong>. The hippocampus binds disparate cortical representations (sights, sounds, emotions, context) into coherent episodic memories — the \"what, where, when\" of personal experience. New memories are initially hippocampus-dependent; over weeks to years, systems consolidation gradually transfers representations to neocortical stores (where they become semantic knowledge). The hippocampus also supports spatial navigation (place cells, grid cells — O\'Keefe & Moser\'s Nobel Prize work) and imagination of future events.',
+    clinical: 'Bilateral hippocampal damage causes anterograde amnesia — inability to form new episodic memories (H.M. / Henry Molaison). Procedural memory (skills) and short-term memory remain intact, proving these are separate systems. Hippocampal atrophy is the earliest structural marker of Alzheimer\'s disease.',
+    color: '#9b6dff'
+  }
+};
+
+// ── Shared function: select a brain region by module ID ──
+function selectBrainRegion(modId) {
+  if (selectedBrainRegion === modId) {
+    clearBrainRegionSelection();
+    return;
+  }
+  if (activeTask) deactivateAll();
+  selectedBrainRegion = modId;
+
+  // Highlight this region + corresponding module above (slight scale, NOT fully expanded)
+  updateBrainHighlights([modId]);
+  const modEl = document.getElementById(`mod-${modId}`);
+  if (modEl) {
+    document.querySelectorAll('.module').forEach(m => {
+      m.classList.remove('active', 'expanded');
+      if (m.id !== `mod-${modId}`) m.classList.add('dimmed');
+      else m.classList.remove('dimmed');
+    });
+    modEl.classList.add('active');
+    // Active state gives slight scale-up + glow, but NOT expanded (no desc revealed)
+  }
+  highlightModuleConnections(modId, true);
+
+  // Update legend active state
+  document.querySelectorAll('.brain-legend-item').forEach(item => {
+    item.classList.toggle('active', item.dataset.module === modId);
+  });
+
+  showBrainRegionDetail(modId);
+
+  // Scroll info panel into view
+  document.getElementById('infoCard').scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+}
+
+// Brain SVG region click + hover
+document.querySelectorAll('.brain-region').forEach(region => {
+  const modId = region.dataset.modules;
+
+  region.addEventListener('click', (e) => {
+    e.stopPropagation();
+    selectBrainRegion(modId);
+  });
+
+  region.addEventListener('mouseenter', () => {
+    if (!activeTask && !selectedBrainRegion) {
+      updateBrainHighlights([modId]);
+      highlightModuleConnections(modId, true);
+    }
+  });
+  region.addEventListener('mouseleave', () => {
+    if (!activeTask && !selectedBrainRegion) {
+      updateBrainHighlights([]);
+      highlightModuleConnections(modId, false);
+    } else if (activeTask) {
+      updateBrainHighlights(tasks[activeTask].activeModules);
+    }
+  });
+});
+
+function showBrainRegionDetail(modId) {
+  const detail = brainRegionDetails[modId];
+  const mod = modules[modId];
+  if (!detail || !mod) return;
+
+  // Find which tasks use this module
+  const tasksUsing = Object.entries(tasks)
+    .filter(([, t]) => t.activeModules.includes(modId))
+    .map(([key, t]) => ({ key, name: t.name }));
+
+  const card = document.getElementById('infoCard');
+  card.innerHTML = `
+    <div class="info-flow">
+      <h3 style="color:${detail.color}">Brain Region</h3>
+      <div class="info-region-header">
+        <span class="info-region-dot" style="background:${detail.color}; --dot-color:${detail.color}"></span>
+        <div class="info-region-title">${detail.title}</div>
+      </div>
+      <div class="info-region-anatomy">${detail.anatomy}</div>
+      <div class="info-region-desc">${detail.desc}</div>
+    </div>
+    <div>
+      <div class="info-clinical">
+        <h4>Clinical Significance</h4>
+        <div class="info-region-desc" style="font-size:12px">${detail.clinical}</div>
+      </div>
+      <div class="info-tasks-used" style="margin-top:var(--space-5)">
+        <h4>Active In Tasks</h4>
+        ${tasksUsing.map(t => `<span class="task-tag" data-task="${t.key}">${t.name}</span>`).join('')}
+      </div>
+    </div>
+  `;
+
+  // Make task tags clickable → switch to that task
+  card.querySelectorAll('.task-tag').forEach(tag => {
+    tag.addEventListener('click', () => {
+      clearBrainRegionSelection();
+      activateTask(tag.dataset.task);
+    });
+  });
+
+  card.classList.remove('visible');
+  requestAnimationFrame(() => requestAnimationFrame(() => card.classList.add('visible')));
+}
+
+function clearBrainRegionSelection() {
+  selectedBrainRegion = null;
+  document.querySelectorAll('.module').forEach(m => {
+    m.classList.remove('active', 'dimmed', 'expanded');
+  });
+  document.querySelectorAll('#connections path').forEach(p => {
+    p.style.stroke = '';
+    p.style.opacity = '';
+    p.style.strokeWidth = '';
+  });
+  updateBrainHighlights([]);
+  document.getElementById('infoCard').classList.remove('visible');
+}
+
+// Click brain background to deselect
+document.getElementById('brainSvg').addEventListener('click', (e) => {
+  if (!e.target.closest('.brain-region') && selectedBrainRegion) {
+    clearBrainRegionSelection();
+  }
+});
+
+function updateBrainHighlights(activeModuleIds) {
+  document.querySelectorAll('.brain-region').forEach(region => {
+    const modId = region.dataset.modules;
+    const isLit = activeModuleIds.includes(modId);
+    region.classList.toggle('region-lit', isLit);
+    if (isLit) {
+      region.setAttribute('fill-opacity', '0.35');
+    } else {
+      const isDeep = modId === 'emotional' || modId === 'memory';
+      region.setAttribute('fill-opacity', isDeep ? '0.06' : '0.12');
+    }
+  });
+  // Light up white matter pathways when both ends are active
+  document.querySelectorAll('.brain-flow-path').forEach(path => {
+    const from = path.dataset.from;
+    const to = path.dataset.to;
+    const isLit = activeModuleIds.includes(from) && activeModuleIds.includes(to);
+    path.classList.toggle('flow-lit', isLit);
+  });
+  // Update legend
+  document.querySelectorAll('.brain-legend-item').forEach(item => {
+    item.classList.toggle('active', activeModuleIds.includes(item.dataset.module));
+  });
+}
+
+// ══════════════════════════════════════════════════
+// BRAIN PARTICLE SYSTEM
+// ══════════════════════════════════════════════════
+
+const brainCanvas = document.getElementById('brainParticleCanvas');
+const brainCtx = brainCanvas.getContext('2d');
+let brainParticles = [];
+let brainEmitters = [];
+let brainParticleRunning = false;
+let brainLastFrame = 0;
+const BRAIN_MAX_PARTICLES = 30;
+const brainSampledPaths = new Map();
+const brainSvgEl = document.getElementById('brainSvg');
+
+function resizeBrainCanvas() {
+  const wrap = brainCanvas.parentElement;
+  const rect = wrap.getBoundingClientRect();
+  const dpr = window.devicePixelRatio || 1;
+  brainCanvas.width = rect.width * dpr;
+  brainCanvas.height = rect.height * dpr;
+  brainCanvas.style.width = rect.width + 'px';
+  brainCanvas.style.height = rect.height + 'px';
+  brainCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+}
+resizeBrainCanvas();
+window.addEventListener('resize', () => setTimeout(resizeBrainCanvas, 200));
+
+// Convert SVG viewBox coords to canvas pixel coords
+function svgToCanvas(svgX, svgY) {
+  const wrap = brainCanvas.parentElement;
+  const rect = wrap.getBoundingClientRect();
+  // SVG viewBox is 0 0 400 300
+  return {
+    x: (svgX / 400) * rect.width,
+    y: (svgY / 300) * rect.height
+  };
+}
+
+function presampleBrainPath(pathEl, key) {
+  const len = pathEl.getTotalLength();
+  const numSamples = 60;
+  const points = [];
+  for (let i = 0; i <= numSamples; i++) {
+    const svgPt = pathEl.getPointAtLength((i / numSamples) * len);
+    const canvasPt = svgToCanvas(svgPt.x, svgPt.y);
+    points.push(canvasPt);
+  }
+  brainSampledPaths.set(key, { points, length: len });
+}
+
+function getBrainPointOnPath(key, progress) {
+  const data = brainSampledPaths.get(key);
+  if (!data) return null;
+  const t = Math.max(0, Math.min(1, progress / data.length));
+  const idx = t * (data.points.length - 1);
+  const i = Math.floor(idx);
+  const frac = idx - i;
+  const p0 = data.points[Math.min(i, data.points.length - 1)];
+  const p1 = data.points[Math.min(i + 1, data.points.length - 1)];
+  return { x: p0.x + (p1.x - p0.x) * frac, y: p0.y + (p1.y - p0.y) * frac };
+}
+
+function brainParticleLoop(ts) {
+  if (!brainParticleRunning) return;
+  const dt = Math.min(ts - brainLastFrame, 33);
+  brainLastFrame = ts;
+
+  const w = brainCanvas.width / (window.devicePixelRatio || 1);
+  const h = brainCanvas.height / (window.devicePixelRatio || 1);
+  brainCtx.clearRect(0, 0, w, h);
+
+  // Update emitters
+  for (const em of brainEmitters) {
+    em.elapsed += dt;
+    if (em.elapsed < em.delay) continue;
+    em.timeSinceLast += dt;
+    const interval = 1000 / em.rate;
+    while (em.timeSinceLast >= interval && brainParticles.length < BRAIN_MAX_PARTICLES) {
+      const data = brainSampledPaths.get(em.pathKey);
+      if (data) {
+        brainParticles.push({
+          pathKey: em.pathKey,
+          color: em.color,
+          progress: 0,
+          speed: 0.8 + Math.random() * 0.6,
+          radius: 2 + Math.random() * 1.2,
+          alive: true,
+          trail: [],
+          trailMax: 5,
+          length: data.length
+        });
+      }
+      em.timeSinceLast -= interval;
+    }
+  }
+
+  // Update + render particles
+  for (const p of brainParticles) {
+    p.progress += p.speed * (dt / 16.67);
+    const pt = getBrainPointOnPath(p.pathKey, p.progress);
+    if (!pt) { p.alive = false; continue; }
+
+    p.trail.push({ x: pt.x, y: pt.y });
+    if (p.trail.length > p.trailMax) p.trail.shift();
+
+    if (p.progress >= p.length) p.alive = false;
+
+    // Draw trail
+    for (let i = 0; i < p.trail.length - 1; i++) {
+      const alpha = (i / p.trail.length) * 0.2;
+      brainCtx.beginPath();
+      brainCtx.arc(p.trail[i].x, p.trail[i].y, p.radius * 0.4, 0, Math.PI * 2);
+      brainCtx.fillStyle = colorAlpha(p.color, alpha);
+      brainCtx.fill();
+    }
+
+    // Glow
+    const head = p.trail[p.trail.length - 1];
+    if (head) {
+      brainCtx.beginPath();
+      brainCtx.arc(head.x, head.y, p.radius + 2.5, 0, Math.PI * 2);
+      brainCtx.fillStyle = colorAlpha(p.color, 0.1);
+      brainCtx.fill();
+
+      brainCtx.beginPath();
+      brainCtx.arc(head.x, head.y, p.radius, 0, Math.PI * 2);
+      brainCtx.fillStyle = colorAlpha(p.color, 0.8);
+      brainCtx.fill();
+    }
+  }
+
+  brainParticles = brainParticles.filter(p => p.alive);
+  requestAnimationFrame(brainParticleLoop);
+}
+
+function startBrainParticles(activeModuleIds) {
+  if (prefersReducedMotion) return;
+  stopBrainParticles();
+  resizeBrainCanvas();
+  brainSampledPaths.clear();
+  brainEmitters = [];
+
+  // Pre-sample all flow paths and create emitters for lit ones
+  document.querySelectorAll('.brain-flow-path').forEach(path => {
+    const from = path.dataset.from;
+    const to = path.dataset.to;
+    const key = path.id;
+    presampleBrainPath(path, key);
+
+    if (activeModuleIds.includes(from) && activeModuleIds.includes(to)) {
+      // Get color from the path's stroke
+      const color = path.getAttribute('stroke');
+      brainEmitters.push({
+        pathKey: key,
+        color: color,
+        rate: 1.5,
+        delay: 0,
+        elapsed: 0,
+        timeSinceLast: 800 // emit quickly at start
+      });
+    }
+  });
+
+  if (brainEmitters.length > 0) {
+    brainParticleRunning = true;
+    brainLastFrame = performance.now();
+    requestAnimationFrame(brainParticleLoop);
+  }
+}
+
+function stopBrainParticles() {
+  brainParticleRunning = false;
+  brainParticles = [];
+  brainEmitters = [];
+  brainSampledPaths.clear();
+  const w = brainCanvas.width / (window.devicePixelRatio || 1);
+  const h = brainCanvas.height / (window.devicePixelRatio || 1);
+  brainCtx.clearRect(0, 0, w, h);
+}
+
+// Hook updateBrainHighlights to also manage brain particles
+const _origUpdateBrain = updateBrainHighlights;
+updateBrainHighlights = function(activeModuleIds) {
+  _origUpdateBrain(activeModuleIds);
+  if (activeModuleIds.length > 0 && activeTask) {
+    // Restart particles with new set of active modules
+    startBrainParticles(activeModuleIds);
+  } else if (activeModuleIds.length === 0) {
+    stopBrainParticles();
+  }
+};
+
+// Hook into cascade activation — update brain when modules light up
+const _origApplyCascade = applyCascade;
+applyCascade = function(taskKey) {
+  _origApplyCascade(taskKey);
+  // Progressively light up brain regions with cascade
+  const task = tasks[taskKey];
+  const sequenced = Object.entries(task.sequence).sort(([, a], [, b]) => a - b);
+  const cascadeDelay = 350;
+  let litModules = [];
+  sequenced.forEach(([modKey], index) => {
+    const timer = setTimeout(() => {
+      litModules.push(modKey);
+      updateBrainHighlights([...litModules]);
+    }, index * cascadeDelay);
+    cascadeTimers.push(timer);
+  });
+};
+
+// Pause brain particles when tab hidden
+document.addEventListener('visibilitychange', () => {
+  if (document.hidden && brainParticleRunning) {
+    brainParticleRunning = false;
+  } else if (!document.hidden && activeTask && brainEmitters.length > 0) {
+    brainParticleRunning = true;
+    brainLastFrame = performance.now();
+    requestAnimationFrame(brainParticleLoop);
+  }
+});
+</script>
+</body>
+</html>
