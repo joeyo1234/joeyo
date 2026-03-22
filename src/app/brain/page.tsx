@@ -62,7 +62,7 @@ export default function BrainPage() {
         ref={iframeRef}
         src="/brain-architecture.html"
         className="w-full border-0"
-        style={{ height: '2300px' }}
+        style={{ height: '2200px' }}
         title="Cognitive Systems Architecture"
         scrolling="no"
       />
