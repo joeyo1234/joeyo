@@ -48,14 +48,24 @@ export default function Home() {
                 </a>
                 . Writing about consciousness, technology, and building things that matter.
               </p>
-              <a
-                href="/theory"
-                className="inline-flex items-center gap-2 text-sm font-mono px-4 py-2 border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] hover:border-[var(--muted)] transition-colors"
-              >
-                <span>✨</span>
-                <span>Explore: The Conscious Machine</span>
-                <span>→</span>
-              </a>
+              <div className="flex flex-wrap gap-3">
+                <a
+                  href="/theory"
+                  className="inline-flex items-center gap-2 text-sm font-mono px-4 py-2 border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] hover:border-[var(--muted)] transition-colors"
+                >
+                  <span>✨</span>
+                  <span>Explore: The Conscious Machine</span>
+                  <span>→</span>
+                </a>
+                <a
+                  href="/brain"
+                  className="inline-flex items-center gap-2 text-sm font-mono px-4 py-2 border border-[var(--border)] rounded-lg hover:bg-[var(--hover)] hover:border-[var(--muted)] transition-colors"
+                >
+                  <span>🧠</span>
+                  <span>Interactive: Brain Architecture</span>
+                  <span>→</span>
+                </a>
+              </div>
             </motion.div>
             <ThemeToggle />
           </div>
