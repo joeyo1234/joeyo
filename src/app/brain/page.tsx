@@ -38,7 +38,7 @@ export default function BrainPage() {
               href="/"
               className="text-[var(--muted)] hover:text-[var(--foreground)] transition-colors text-sm"
             >
-              ← Back to all writing
+              ← Home
             </Link>
             <ThemeToggle />
           </div>
