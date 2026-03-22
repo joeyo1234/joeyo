@@ -39,7 +39,7 @@ export default function Home() {
               <p className="text-[var(--muted)] text-base max-w-xl mb-1">
                 Exploring the architecture of mind and meaning.
               </p>
-              <p className="text-[var(--muted)] text-xs mb-4">
+              <p className="text-[var(--muted)] text-base mb-4">
                 Building{' '}
                 <a
                   href="https://lilypadlearning.com"
