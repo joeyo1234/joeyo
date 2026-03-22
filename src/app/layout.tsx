@@ -3,7 +3,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   title: "Joseph Orsborn",
-  description: "Founder, thinker, builder.",
+  description: "Exploring the architecture of mind and meaning.",
   icons: {
     icon: "/favicon.svg",
   },
