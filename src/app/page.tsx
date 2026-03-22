@@ -26,7 +26,7 @@ export default function Home() {
     <main className="min-h-screen">
       {/* Header */}
       <header className="border-b border-[var(--border)]">
-        <div className="max-w-6xl mx-auto px-6 py-12 md:py-20">
+        <div className="max-w-6xl mx-auto px-8 py-16 md:py-24">
           <div className="flex items-start justify-between">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
