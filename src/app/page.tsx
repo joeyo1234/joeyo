@@ -79,7 +79,7 @@ export default function Home() {
               <div className="flex items-baseline justify-between gap-4">
                 <h3 className="text-[var(--foreground)] font-medium group-hover:opacity-80 transition-opacity">
                   The Conscious Machine
-                  <span className="ml-2 text-xs font-mono text-[var(--muted)] opacity-60">· in progress</span>
+                  <span className="ml-2 text-xs font-mono text-[var(--muted)] opacity-60">· work in progress</span>
                 </h3>
                 <span className="text-xs font-mono text-[var(--muted)] whitespace-nowrap">theory</span>
               </div>
