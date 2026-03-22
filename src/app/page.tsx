@@ -9,7 +9,6 @@ import type { Essay } from '@/lib/essays';
 export default function Home() {
   const [essays, setEssays] = useState<Essay[]>([]);
   const [selectedEssay, setSelectedEssay] = useState<Essay | null>(null);
-  const [filter, setFilter] = useState<string | null>(null);
 
   useEffect(() => {
     fetch('/api/essays')
@@ -17,16 +16,11 @@ export default function Home() {
       .then((data) => setEssays(data));
   }, []);
 
-  const allTags = [...new Set(essays.flatMap((e) => e.tags))];
-  const filteredEssays = filter
-    ? essays.filter((e) => e.tags.includes(filter))
-    : essays;
-
   return (
     <main className="min-h-screen">
       {/* Header */}
       <header className="border-b border-[var(--border)]">
-        <div className="max-w-6xl mx-auto px-6 py-12 md:py-16">
+        <div className="max-w-2xl mx-auto px-6 py-12 md:py-16">
           <div className="flex items-start justify-between">
             <motion.div
               initial={{ opacity: 0, y: 10 }}
@@ -57,149 +51,91 @@ export default function Home() {
         </div>
       </header>
 
-      {/* Filters */}
-      <div className="border-b border-[var(--border)]">
-        <div className="max-w-6xl mx-auto px-6 py-4">
-          <div className="flex items-center gap-2 overflow-x-auto">
-            <button
-              onClick={() => setFilter(null)}
-              className={`text-sm font-mono px-3 py-1.5 rounded transition-colors whitespace-nowrap ${
-                filter === null
-                  ? 'bg-[var(--border)] text-[var(--foreground)]'
-                  : 'text-[var(--muted)] hover:text-[var(--accent)]'
-              }`}
+      {/* Content */}
+      <div className="max-w-2xl mx-auto px-6 min-h-[35vh]">
+
+        {/* Interactive */}
+        <div className="py-8 border-b border-[var(--border)]">
+          <p className="text-xs font-mono text-[var(--muted)] uppercase tracking-wider mb-4">Interactive</p>
+          <div className="space-y-1">
+            <a
+              href="/brain"
+              className="block py-3 -mx-3 px-3 rounded-lg group hover:bg-[var(--hover)] transition-colors"
             >
-              all
-            </button>
-            {allTags.map((tag) => (
-              <button
-                key={tag}
-                onClick={() => setFilter(tag)}
-                className={`text-sm font-mono px-3 py-1.5 rounded transition-colors whitespace-nowrap ${
-                  filter === tag
-                    ? 'bg-[var(--border)] text-[var(--foreground)]'
-                    : 'text-[var(--muted)] hover:text-[var(--accent)]'
-                }`}
+              <div className="flex items-baseline justify-between gap-4">
+                <h3 className="text-[var(--foreground)] font-medium group-hover:opacity-80 transition-opacity">
+                  Cognitive Systems Architecture
+                </h3>
+                <span className="text-xs font-mono text-[var(--muted)] whitespace-nowrap">neuroscience</span>
+              </div>
+              <p className="text-sm text-[var(--muted)] mt-1">
+                The brain as a distributed computing system — modules, pathways, and information flow.
+              </p>
+            </a>
+            <a
+              href="/theory"
+              className="block py-3 -mx-3 px-3 rounded-lg group hover:bg-[var(--hover)] transition-colors"
+            >
+              <div className="flex items-baseline justify-between gap-4">
+                <h3 className="text-[var(--foreground)] font-medium group-hover:opacity-80 transition-opacity">
+                  The Conscious Machine
+                </h3>
+                <span className="text-xs font-mono text-[var(--muted)] whitespace-nowrap">theory</span>
+              </div>
+              <p className="text-sm text-[var(--muted)] mt-1">
+                From the origins of life to the emergence of consciousness.
+              </p>
+            </a>
+          </div>
+        </div>
+
+        {/* Writing */}
+        <div className="py-8">
+          <p className="text-xs font-mono text-[var(--muted)] uppercase tracking-wider mb-4">Writing</p>
+          <div className="space-y-1">
+            {essays.map((essay, index) => (
+              <motion.button
+                key={essay.slug}
+                initial={{ opacity: 0, y: 10 }}
+                animate={{ opacity: 1, y: 0 }}
+                transition={{ duration: 0.3, delay: index * 0.05 }}
+                onClick={() => {
+                  if (essay.externalUrl) {
+                    window.open(essay.externalUrl, '_blank', 'noopener,noreferrer');
+                  } else {
+                    setSelectedEssay(essay);
+                  }
+                }}
+                className="block w-full text-left py-3 -mx-3 px-3 rounded-lg group hover:bg-[var(--hover)] transition-colors"
               >
-                {tag}
-              </button>
+                <div className="flex items-baseline justify-between gap-4">
+                  <h3 className="text-[var(--foreground)] font-medium group-hover:opacity-80 transition-opacity">
+                    {essay.title}
+                  </h3>
+                  <span className="text-xs font-mono text-[var(--muted)] whitespace-nowrap flex items-center gap-1.5">
+                    {new Date(essay.date).toLocaleDateString('en-US', {
+                      year: 'numeric',
+                      month: 'short',
+                    })}
+                    {essay.externalUrl && (
+                      <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
+                        <path d="M3.5 3.5h5v5M8.5 3.5L3.5 8.5" />
+                      </svg>
+                    )}
+                  </span>
+                </div>
+                <p className="text-sm text-[var(--muted)] mt-1">
+                  {essay.description}
+                </p>
+              </motion.button>
             ))}
           </div>
         </div>
       </div>
 
-      {/* Essays Index */}
-      <div className="max-w-6xl mx-auto px-6 min-h-[35vh]">
-        {/* Table Header */}
-        <div className="hidden md:grid grid-cols-12 gap-4 py-3 text-xs font-mono text-[var(--muted)] uppercase tracking-wider border-b border-[var(--border)]">
-          <div className="col-span-6">Title</div>
-          <div className="col-span-3">Tags</div>
-          <div className="col-span-3 text-right">Date</div>
-        </div>
-
-        {/* Pinned items + Essay Rows */}
-        <div className="divide-y divide-[var(--border)]">
-          {/* Pinned: interactive pages */}
-          {!filter && (
-            <>
-              <a
-                href="/theory"
-                className="w-full grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 py-5 md:py-4 text-left group hover:bg-[var(--hover)] transition-colors -mx-4 px-4 rounded"
-              >
-                <div className="md:col-span-6">
-                  <h3 className="text-[var(--foreground)] font-medium group-hover:opacity-80 transition-opacity">
-                    The Conscious Machine
-                  </h3>
-                </div>
-                <div className="md:col-span-3 flex items-center gap-2">
-                  <span className="text-xs font-mono text-[var(--muted)]">theory</span>
-                </div>
-                <div className="md:col-span-3 text-sm font-mono text-[var(--muted)] md:text-right flex items-center justify-end gap-2">
-                  interactive
-                </div>
-              </a>
-              <a
-                href="/brain"
-                className="w-full grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 py-5 md:py-4 text-left group hover:bg-[var(--hover)] transition-colors -mx-4 px-4 rounded"
-              >
-                <div className="md:col-span-6">
-                  <h3 className="text-[var(--foreground)] font-medium group-hover:opacity-80 transition-opacity">
-                    Cognitive Systems Architecture
-                  </h3>
-                </div>
-                <div className="md:col-span-3 flex items-center gap-2">
-                  <span className="text-xs font-mono text-[var(--muted)]">neuroscience</span>
-                </div>
-                <div className="md:col-span-3 text-sm font-mono text-[var(--muted)] md:text-right flex items-center justify-end gap-2">
-                  interactive
-                </div>
-              </a>
-            </>
-          )}
-          {/* Essays */}
-          {filteredEssays.map((essay, index) => (
-            <motion.button
-              key={essay.slug}
-              initial={{ opacity: 0, y: 10 }}
-              animate={{ opacity: 1, y: 0 }}
-              transition={{ duration: 0.3, delay: index * 0.05 }}
-              onClick={() => {
-                if (essay.externalUrl) {
-                  window.open(essay.externalUrl, '_blank', 'noopener,noreferrer');
-                } else {
-                  setSelectedEssay(essay);
-                }
-              }}
-              className="w-full grid grid-cols-1 md:grid-cols-12 gap-2 md:gap-4 py-5 md:py-4 text-left group hover:bg-[var(--hover)] transition-colors -mx-4 px-4 rounded"
-            >
-              {/* Title & Description */}
-              <div className="md:col-span-6">
-                <h3 className="text-[var(--foreground)] font-medium group-hover:opacity-80 transition-opacity">
-                  {essay.title}
-                </h3>
-                <p className="text-sm text-[var(--muted)] mt-1 line-clamp-1 md:hidden">
-                  {essay.description}
-                </p>
-              </div>
-
-              {/* Tags */}
-              <div className="md:col-span-3 flex items-center gap-2">
-                {essay.tags.slice(0, 2).map((tag) => (
-                  <span
-                    key={tag}
-                    className="text-xs font-mono text-[var(--muted)]"
-                  >
-                    {tag}
-                  </span>
-                ))}
-              </div>
-
-              {/* Date */}
-              <div className="md:col-span-3 text-sm font-mono text-[var(--muted)] md:text-right flex items-center justify-end gap-2">
-                {new Date(essay.date).toLocaleDateString('en-US', {
-                  year: 'numeric',
-                  month: 'short',
-                })}
-                {essay.externalUrl && (
-                  <svg className="w-3 h-3" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="1.5">
-                    <path d="M3.5 3.5h5v5M8.5 3.5L3.5 8.5" />
-                  </svg>
-                )}
-              </div>
-            </motion.button>
-          ))}
-        </div>
-
-        {filteredEssays.length === 0 && (
-          <div className="py-20 text-center text-[var(--muted)]">
-            No essays found.
-          </div>
-        )}
-      </div>
-
       {/* Footer */}
       <footer className="mt-20 border-t border-[var(--border)]">
-        <div className="max-w-6xl mx-auto px-6 py-8">
+        <div className="max-w-2xl mx-auto px-6 py-8">
           <div className="flex flex-col md:flex-row items-center justify-between gap-4 text-sm text-[var(--muted)]">
             <div className="flex items-center gap-4">
               <a
