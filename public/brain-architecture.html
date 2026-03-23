@@ -1267,6 +1267,126 @@ const tasks = {
       { label: 'Memory \u2192 Working Memory', desc: 'Hippocampal place system. London taxi drivers have enlarged posterior hippocampi. Early Alzheimer\u2019s targets entorhinal cortex first \u2014 getting lost in familiar places is often the earliest symptom.' },
       { label: 'Motor \u2192 Visual', desc: 'Sensorimotor update loop. Motor commands predict visual scene changes. Disruption causes spatial disorientation and visual vertigo. This is why passengers get carsick more than drivers.' }
     ]
+  },
+  running: {
+    name: 'Running',
+    title: 'Coordinated Locomotion',
+    activeModules: ['visual', 'spatial', 'motor', 'workingmem', 'executive', 'emotional', 'memory'],
+    sequence: { visual: 1, spatial: 2, memory: 2, motor: 3, workingmem: 3, executive: 4, emotional: 4 },
+    activePaths: [
+      ['visual', 'spatial'],           // scan terrain ahead
+      ['visual', 'emotional'],         // threat detection on the path
+      ['spatial', 'motor'],            // real-time trajectory adjustment
+      ['spatial', 'workingmem'],       // spatial updates held in workspace
+      ['memory', 'workingmem'],        // learned motor patterns, route knowledge
+      ['workingmem', 'executive'],     // pacing strategy, fatigue management
+      ['workingmem', 'motor'],         // motor commands from held plan
+      ['executive', 'motor'],          // voluntary pace changes
+      ['executive', 'emotional'],      // top-down regulation of pain/fatigue signals
+      ['emotional', 'motor'],          // motivational drive directly to motor circuits
+      ['emotional', 'memory'],         // encode the run experience
+    ],
+    desc: 'Running engages a continuous sensorimotor loop. <strong>Visual cortex (V1\u2013V5)</strong> scans terrain ahead \u2192 <strong>posterior parietal cortex (IPS)</strong> maps obstacles and path geometry \u2192 <strong>motor cortex, premotor, SMA, and cerebellum</strong> generate rhythmic locomotion patterns. <strong>Working memory (dlPFC)</strong> holds route and pace goals while <strong>executive control (ACC)</strong> manages pacing strategy and fatigue. <strong>The emotional system (amygdala, insula, ventral striatum)</strong> drives motivation, manages pain signals, and produces the runner\u2019s high via endocannabinoid release. <strong>Hippocampus</strong> supplies learned motor patterns and route knowledge. The defining feature \u2014 this is not a single action but a sustained loop: visual scanning feeds spatial updates, which continuously adjust motor output, with executive and emotional systems modulating effort across the entire run.',
+    bridges: [
+      { label: 'Spatial \u2192 Motor', desc: 'The posterior parietal cortex continuously translates terrain maps into trajectory adjustments \u2014 dodging a pothole or navigating a curve without conscious thought. Damage causes optic ataxia: you see the obstacle but your body cannot adjust.' },
+      { label: 'Executive \u2192 Emotional', desc: 'The anterior PFC and ACC regulate emotional responses to fatigue and pain. This top-down control is what lets marathon runners push through \u201cthe wall\u201d \u2014 prefrontal suppression of insula pain signals. When this pathway fatigues, runners report sudden motivational collapse.' },
+      { label: 'Emotional \u2192 Motor', desc: 'The ventral striatum provides motivational drive directly to motor circuits, bypassing conscious deliberation. This is the dopaminergic \u201cwanting\u201d signal that keeps legs moving. The runner\u2019s high (endocannabinoid release) also flows through this route.' }
+    ]
+  },
+  startle: {
+    name: 'Startle Response',
+    title: 'Fright / Startle Response',
+    activeModules: ['auditory', 'visual', 'emotional', 'motor', 'workingmem', 'executive', 'memory'],
+    sequence: { auditory: 1, visual: 1, emotional: 1, motor: 2, workingmem: 3, executive: 3, memory: 4 },
+    activePaths: [
+      ['auditory', 'emotional'],       // fast subcortical route (~12ms)
+      ['visual', 'emotional'],         // visual threat detection
+      ['emotional', 'motor'],          // flinch/freeze BEFORE conscious awareness
+      ['emotional', 'workingmem'],     // conscious registration of threat
+      ['emotional', 'executive'],      // "was that actually dangerous?"
+      ['workingmem', 'executive'],     // threat evaluation
+      ['executive', 'workingmem'],     // conscious reappraisal
+      ['emotional', 'memory'],         // encode the threatening event
+    ],
+    desc: 'The brain\u2019s fastest circuit \u2014 an amygdala hijack where emotion drives action <em>before</em> conscious awareness. A sudden loud noise reaches <strong>auditory cortex (A1)</strong> but the <strong>amygdala</strong> fires within 12\u201315 milliseconds via a subcortical thalamic shortcut, <em>bypassing</em> cortical analysis entirely. The amygdala immediately triggers <strong>motor cortex and brainstem</strong> \u2014 you flinch, freeze, or jump before you know why. Only <em>then</em> does conscious processing catch up: <strong>working memory (dlPFC)</strong> registers what happened, <strong>executive control (anterior PFC, ACC)</strong> evaluates the actual threat level, and the <strong>hippocampus</strong> encodes the event. The defining feature \u2014 the emotional \u2192 motor path fires at step 2, while executive evaluation doesn\u2019t begin until step 3. Your body reacts before your mind understands.',
+    bridges: [
+      { label: 'Auditory \u2192 Emotional', desc: 'The fastest sensory-to-emotion pathway. Signals reach the amygdala via a direct thalamo-amygdala route in ~12ms \u2014 before auditory cortex finishes processing. A car backfire triggers full-body startle before you identify the sound. Amygdala lesions (Urbach\u2013Wiethe disease) dramatically reduce acoustic startle.' },
+      { label: 'Emotional \u2192 Motor', desc: 'The amygdala\u2019s direct projections to brainstem motor nuclei produce the startle \u2014 eye blink, neck flexion, shoulder hunch, postural freeze \u2014 all within 30\u201350ms. This is genuinely involuntary: you cannot suppress a true startle. The amygdala also triggers sympathetic activation (adrenaline, heart rate spike).' },
+      { label: 'Emotional \u2192 Executive', desc: 'After the reflex, the amygdala signals the anterior PFC for conscious threat evaluation \u2014 the \u201cwas that actually dangerous?\u201d assessment. In PTSD, this pathway is dysregulated: the amygdala continues to override executive reappraisal, producing persistent hypervigilance and exaggerated startle that resists top-down dampening.' }
+    ]
+  },
+  recall: {
+    name: 'Memory Recall',
+    title: 'Episodic Remembering',
+    activeModules: ['auditory', 'memory', 'semantic', 'emotional', 'workingmem', 'executive'],
+    sequence: { auditory: 1, memory: 2, semantic: 2, workingmem: 3, emotional: 3, executive: 4 },
+    activePaths: [
+      ['auditory', 'semantic'],        // sensory cue triggers associations
+      ['auditory', 'workingmem'],      // cue held in workspace
+      ['memory', 'semantic'],          // hippocampus reactivates stored fragments
+      ['memory', 'workingmem'],        // fragments loaded into active workspace
+      ['memory', 'emotional'],         // emotional state of the memory reactivated
+      ['semantic', 'workingmem'],      // contextual framework for reconstruction
+      ['semantic', 'emotional'],       // meaning triggers feeling
+      ['emotional', 'workingmem'],     // emotional coloring of the reconstruction
+      ['workingmem', 'executive'],     // monitoring the reconstruction
+      ['executive', 'workingmem'],     // directing further retrieval
+      ['executive', 'semantic'],       // searching for more details
+    ],
+    desc: 'Deliberately recalling a past experience \u2014 \u201cremember your first day of school\u201d \u2014 activates the brain\u2019s reconstructive memory system. A sensory cue (a familiar song reaching <strong>auditory cortex</strong>) triggers <strong>hippocampal pattern completion</strong>: the hippocampus and entorhinal cortex reactivate stored memory fragments, feeding them into <strong>semantic networks (anterior temporal lobe, angular gyrus)</strong> which provide the contextual framework. These fragments converge in <strong>working memory (dlPFC)</strong> where the scene is actively reconstructed. Simultaneously, the <strong>amygdala and insula</strong> reactivate the emotional state of the original experience \u2014 the nervousness or excitement you felt. <strong>Executive systems (anterior PFC)</strong> direct the search, deciding which details to pursue. The key insight \u2014 memories are not replayed like recordings but <em>rebuilt</em> each time from distributed fragments, which is why recall is always a creative act.',
+    bridges: [
+      { label: 'Memory \u2192 Semantic', desc: 'The hippocampus reactivates episodic traces and feeds them to the anterior temporal lobe, which provides semantic scaffolding. Without this, you recall isolated fragments (a color, a feeling) but can\u2019t place them in narrative. Semantic dementia patients retain episodic fragments but lose the ability to interpret them.' },
+      { label: 'Memory \u2192 Emotional', desc: 'The hippocampus simultaneously reactivates the amygdala\u2019s record of the emotional state from that event. Recalling your wedding brings warmth; remembering an accident triggers anxiety. In PTSD, this pathway is hyperactive: traumatic memories trigger full emotional re-experiencing rather than modulated recollection.' },
+      { label: 'Executive \u2192 Working Memory', desc: 'The anterior PFC monitors the reconstructed memory, applying \u201cfeeling of rightness\u201d checks and directing further retrieval. Frontal lobe damage produces confabulation: patients generate memories without executive monitoring, mixing real fragments with fabrication and believing all of it.' }
+    ]
+  },
+  skilllearning: {
+    name: 'Skill Learning',
+    title: 'Motor Skill Acquisition',
+    activeModules: ['visual', 'spatial', 'workingmem', 'executive', 'motor', 'emotional', 'memory'],
+    sequence: { visual: 1, spatial: 2, workingmem: 2, executive: 3, motor: 4, emotional: 5, memory: 5 },
+    activePaths: [
+      ['visual', 'spatial'],           // observe the target movement
+      ['visual', 'workingmem'],        // instruction/goal held
+      ['spatial', 'motor'],            // spatial geometry of the action
+      ['spatial', 'workingmem'],       // error feedback: "ball went too high"
+      ['workingmem', 'executive'],     // plan the attempt, set error thresholds
+      ['workingmem', 'motor'],         // execute the movement
+      ['executive', 'motor'],          // conscious motor control (early learning)
+      ['executive', 'workingmem'],     // evaluate mismatch, adjust plan
+      ['executive', 'emotional'],      // regulate frustration
+      ['emotional', 'motor'],          // reward on success sustains motivation
+      ['workingmem', 'memory'],        // consolidate emerging procedural memory
+      ['memory', 'workingmem'],        // retrieve improving motor model
+    ],
+    desc: 'Learning a new motor skill \u2014 juggling, riding a bike, playing a guitar chord \u2014 engages a repeated attempt\u2013feedback\u2013adjust loop. <strong>Visual cortex</strong> observes the target \u2192 <strong>posterior parietal cortex</strong> analyzes the spatial geometry \u2192 <strong>working memory (dlPFC)</strong> holds the goal (\u201cthree balls in the air\u201d). <strong>Executive control (anterior PFC, ACC)</strong> plans each attempt \u2192 <strong>motor cortex, premotor, and critically the cerebellum</strong> execute the movement. Visual and spatial feedback signal the error. <strong>Executive and working memory</strong> evaluate the mismatch and adjust. <strong>The emotional system (ventral striatum, insula)</strong> manages frustration on failures and delivers dopaminergic reward on successes. Over many cycles, <strong>hippocampus</strong> consolidates the emerging procedural memory. The defining feature \u2014 early learning is slow, effortful, and executive-heavy; with practice, control transfers from prefrontal to cerebellar-motor circuits, which is why experts perform \u201cwithout thinking.\u201d',
+    bridges: [
+      { label: 'Executive \u2192 Motor', desc: 'During early acquisition, the anterior PFC exerts heavy top-down control \u2014 each movement is consciously planned. The cerebellum gradually builds a forward model predicting sensory consequences. As learning progresses, the cerebellum takes over: the neural basis of automaticity. This is why you can\u2019t ride a bike and talk at first, but eventually can.' },
+      { label: 'Spatial \u2192 Working Memory', desc: 'The posterior parietal cortex feeds spatial error information after each attempt \u2014 \u201cthe ball landed 10cm left.\u201d This visuospatial error signal makes deliberate practice effective. Without it (parietal lesions), patients attempt movements but cannot learn from spatial errors.' },
+      { label: 'Executive \u2192 Emotional', desc: 'The prefrontal cortex suppresses amygdala-driven quit impulses during the frustrating early phase. The ventral striatum delivers reward when performance improves \u2014 the \u201cI did it!\u201d moment. Children with poor prefrontal-emotional regulation (ADHD) often abandon skill learning prematurely \u2014 not from motor inability but from frustration intolerance.' }
+    ]
+  },
+  transcendence: {
+    name: 'Transcendence',
+    title: 'Flow States and Self-Transcendence',
+    activeModules: ['visual', 'auditory', 'emotional', 'memory', 'motor', 'workingmem'],
+    sequence: { visual: 1, auditory: 1, emotional: 2, memory: 2, workingmem: 3, motor: 3 },
+    activePaths: [
+      ['visual', 'emotional'],         // sensory beauty triggers awe
+      ['auditory', 'emotional'],       // music/silence deepens the state
+      ['emotional', 'memory'],         // deep emotional processing, self-dissolution
+      ['emotional', 'workingmem'],     // altered working memory — less verbal, more present
+      ['emotional', 'motor'],          // bodily stillness or rhythmic movement
+      ['memory', 'emotional'],         // autobiographical self fades — feedback loop dampens
+      ['memory', 'workingmem'],        // reduced episodic retrieval — "no past, no future"
+      ['workingmem', 'motor'],         // effortless action in flow
+    ],
+    desc: 'The rarest cognitive state \u2014 and neurologically the most paradoxical. In flow states, deep meditation, or moments of awe, the brain\u2019s self-referential systems <em>quiet down</em> rather than activate. Sensory input from <strong>visual and auditory cortices</strong> reaches the <strong>emotional system (insula, amygdala, ventral striatum)</strong> with unusual intensity because the normal prefrontal filtering is reduced. The <strong>default mode network</strong> \u2014 which normally generates the running narrative of self (\u201cI\u201d, \u201cme\u201d, \u201cmy past\u201d, \u201cmy future\u201d) \u2014 shows <em>decreased</em> activation. <strong>Executive control and working memory</strong> shift from verbal-analytical mode to a more fluid, present-moment awareness. The <strong>hippocampus</strong> reduces episodic time-travel (no rumination about past, no anxiety about future). <strong>Motor output</strong> becomes effortless and automatic in flow. What\u2019s remarkable: the <em>absence</em> of executive override and self-referential processing is experienced as the most profound state the brain can produce. Meditators, athletes in flow, and people experiencing awe all show this same signature \u2014 less prefrontal activity, not more.',
+    bridges: [
+      { label: 'Emotional \u2192 Working Memory', desc: 'In transcendent states, the emotional system\u2019s input to working memory shifts from threat/reward evaluation to pure phenomenal awareness. The insula\u2019s interoceptive signals (breathing, heartbeat, body presence) become the primary content of consciousness rather than verbal thought. Experienced meditators show increased insula thickness and altered insula-to-prefrontal connectivity \u2014 they\u2019ve literally rewired this pathway.' },
+      { label: 'Memory \u2192 Emotional', desc: 'Normally the hippocampus constantly feeds autobiographical context to the amygdala (\u201cwho am I, what happened, what might happen\u201d). In transcendence, this loop dampens \u2014 the autobiographical self temporarily dissolves. Psychedelic research (psilocybin, DMT) shows this pathway is specifically disrupted: default mode network connectivity drops, and subjects report ego dissolution, unity experiences, and loss of self-other boundaries.' },
+      { label: 'Emotional \u2192 Motor', desc: 'In athletic flow states, the emotional-motor pathway operates without executive interruption \u2014 the ventral striatum\u2019s reward signal and the motor system are directly coupled, producing the effortless \u201czone\u201d experience. Musicians, dancers, and athletes describe \u201cthe body moving itself.\u201d Csikszentmihalyi\u2019s flow research shows this state requires a precise challenge-skill balance: too easy and attention wanders, too hard and executive anxiety interrupts the emotional-motor coupling.' }
+    ]
   }
 };
 
