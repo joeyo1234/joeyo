@@ -36,6 +36,10 @@ yarn-error.log*
 # vercel
 .vercel
 
+# raw 3D model source files (compressed version is in public/brain-model.glb)
+public/3d model/
+public/3D model/
+
 # typescript
 *.tsbuildinfo
 next-env.d.ts

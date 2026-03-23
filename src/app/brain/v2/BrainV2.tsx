@@ -4,6 +4,7 @@ import { useState, useRef, useEffect, useCallback } from 'react';
 import { motion, AnimatePresence } from 'framer-motion';
 import { modules, connections, feedbackPaths, tasks, tierBands, brainRegionDetails } from './data';
 import type { Task } from './data';
+import BrainModel3D from './brain3d/BrainModel3D';
 
 // ══════════════════════════════════════════════════
 // MAIN COMPONENT
@@ -427,6 +428,19 @@ export default function BrainV2() {
             </motion.div>
           );
         })}
+      </div>
+
+      {/* 3D Brain Model */}
+      <div className="mt-4">
+        <BrainModel3D
+          activeTask={activeTask}
+          selectedRegion={selectedRegion}
+          cascadeActive={cascadeActive}
+          hoveredModule={hoveredModule}
+          activeModules={task?.activeModules ?? []}
+          onModuleHover={setHoveredModule}
+          onModuleClick={handleModuleClick}
+        />
       </div>
 
       {/* Info panel */}
