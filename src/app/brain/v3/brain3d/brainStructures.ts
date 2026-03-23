@@ -349,24 +349,203 @@ export const brainStructures: Record<string, BrainStructure> = {
   },
 };
 
-// Which structures activate for each task — now uses specific cortical regions
+// Which structures activate for each task.
+// Synced with the flow diagram descriptions in data.ts.
+// Includes structures mentioned in descriptions PLUS neuroscientifically valid
+// additions (e.g. thalamus as relay for sensory tasks, basal ganglia for motor tasks).
 export const taskStructureActivations: Record<string, string[]> = {
-  reading: ['cortex_occipital', 'cortex_wernicke', 'cortex_broca', 'cortex_parietal', 'cortex_prefrontal', 'Left_hippocampus1', 'Cingulate_gyrus_right', 'Right_thalamus'],
-  speech: ['cortex_broca', 'cortex_motor_cortex', 'cortex_wernicke', 'cortex_prefrontal', 'cortex_anterior_temporal', 'Right_cerebellar_hemisphere1', 'Left_insula', 'Caudate_nucleus1', 'Right_thalamus'],
-  math: ['cortex_occipital', 'cortex_parietal', 'cortex_prefrontal', 'cortex_anterior_temporal', 'Cingulate_gyrus_right', 'Left_hippocampus1', 'Caudate_nucleus1'],
-  listening: ['cortex_temporal', 'cortex_wernicke', 'cortex_broca', 'cortex_anterior_temporal', 'cortex_prefrontal', 'Right_thalamus', 'Amygdala1', 'Left_insula'],
-  writing: ['cortex_occipital', 'cortex_broca', 'cortex_motor_cortex', 'cortex_prefrontal', 'cortex_anterior_temporal', 'Right_cerebellar_hemisphere1', 'Left_hippocampus1', 'Cingulate_gyrus_right', 'Caudate_nucleus1'],
-  attention: ['cortex_prefrontal', 'cortex_parietal', 'Cingulate_gyrus_right', 'Right_thalamus', 'Right_thalamus1', 'Amygdala1'],
-  decision: ['cortex_prefrontal', 'cortex_anterior_temporal', 'Amygdala1', 'Left_hippocampus1', 'Cingulate_gyrus_right', 'Left_insula', 'Caudate_nucleus1'],
-  problemsolving: ['cortex_prefrontal', 'cortex_parietal', 'cortex_anterior_temporal', 'Left_hippocampus1', 'Cingulate_gyrus_right'],
-  conversation: ['cortex_temporal', 'cortex_wernicke', 'cortex_broca', 'cortex_motor_cortex', 'cortex_prefrontal', 'Amygdala1', 'Left_hippocampus1', 'Left_insula', 'Right_cerebellar_hemisphere1', 'Right_thalamus'],
-  creative: ['cortex_prefrontal', 'cortex_anterior_temporal', 'cortex_parietal', 'Left_hippocampus1', 'Amygdala1', 'Cingulate_gyrus_right', 'Caudate_nucleus1'],
-  navigation: ['cortex_occipital', 'cortex_parietal', 'cortex_prefrontal', 'Left_hippocampus1', 'Right_cerebellar_hemisphere1', 'Cingulate_gyrus_right'],
-  running: ['cortex_motor_cortex', 'cortex_somatosensory', 'cortex_occipital', 'cortex_parietal', 'Right_cerebellar_hemisphere1', 'Caudate_nucleus1', 'Left_putamen1', 'Brain_stem55', 'Pons', 'Amygdala1'],
-  startle: ['cortex_occipital', 'cortex_temporal', 'Amygdala1', 'Superior_colliculus', 'Hypothalamus_and_pituitary1', 'Brain_stem55', 'Right_thalamus', 'Cingulate_gyrus_right'],
-  recall: ['cortex_prefrontal', 'cortex_anterior_temporal', 'cortex_parietal', 'Left_hippocampus1', 'Amygdala1', 'Cingulate_gyrus_right', 'Fornix_right', 'Mammillary_bodies1'],
-  skilllearning: ['cortex_motor_cortex', 'cortex_somatosensory', 'cortex_prefrontal', 'cortex_parietal', 'Right_cerebellar_hemisphere1', 'Caudate_nucleus1', 'Left_putamen1', 'Cingulate_gyrus_right'],
-  transcendence: ['Left_insula', 'Amygdala1', 'Left_hippocampus1', 'Cingulate_gyrus_right'],
-  trauma: ['cortex_prefrontal', 'Amygdala1', 'Hypothalamus_and_pituitary1', 'Left_hippocampus1', 'Cingulate_gyrus_right', 'Left_insula', 'Brain_stem55'],
-  dreaming: ['cortex_occipital', 'cortex_temporal', 'cortex_anterior_temporal', 'Left_hippocampus1', 'Amygdala1', 'Pons', 'Right_thalamus', 'Right_cerebellar_hemisphere1'],
+  reading: [
+    'cortex_occipital',           // Visual cortex (V1-V5) — orthographic analysis
+    'cortex_wernicke',            // Posterior STG — sublexical phonological route
+    'cortex_anterior_temporal',   // Anterior temporal — lexical/semantic route
+    'cortex_broca',               // Broca's area — syntactic structure
+    'cortex_parietal',            // Angular gyrus — reading integration
+    'cortex_prefrontal',          // dlPFC — working memory
+    'Cingulate_gyrus_right',      // ACC — comprehension monitoring
+    'Left_hippocampus1',          // Hippocampus — world knowledge retrieval
+    'Right_thalamus',             // Thalamus — visual relay (LGN)
+  ],
+  speech: [
+    'cortex_anterior_temporal',   // Semantic network — conceptual intent
+    'cortex_broca',               // Broca's area — grammatical encoding
+    'cortex_wernicke',            // Posterior STG — phonological encoding
+    'cortex_motor_cortex',        // M1 — articulation
+    'cortex_prefrontal',          // dlPFC — working memory
+    'cortex_temporal',            // Auditory cortex — self-monitoring feedback
+    'Cingulate_gyrus_right',      // ACC — executive control
+    'Left_hippocampus1',          // Hippocampus — knowledge retrieval
+    'Right_cerebellar_hemisphere1', // Cerebellum — motor timing
+    'Right_thalamus',             // Thalamus — motor relay
+  ],
+  math: [
+    'cortex_occipital',           // Visual cortex — symbol recognition
+    'cortex_parietal',            // IPS — magnitude, number line
+    'cortex_anterior_temporal',   // Semantic — math fact retrieval
+    'cortex_wernicke',            // Phonological loop — verbal rehearsal
+    'cortex_prefrontal',          // dlPFC — working memory
+    'cortex_motor_cortex',        // Motor — writing the answer
+    'Cingulate_gyrus_right',      // ACC — sequencing operations
+    'Left_hippocampus1',          // Hippocampus — stored procedures
+  ],
+  listening: [
+    'cortex_temporal',            // Auditory cortex (A1, STG)
+    'cortex_wernicke',            // Posterior STG — phonological decoding
+    'cortex_broca',               // Broca's — syntactic parsing
+    'cortex_anterior_temporal',   // Anterior temporal — meaning
+    'cortex_prefrontal',          // dlPFC — working memory
+    'Cingulate_gyrus_right',      // ACC — comprehension monitoring
+    'Left_hippocampus1',          // Hippocampus — context retrieval
+    'Amygdala1',                  // Amygdala — emotional prosody
+    'Left_insula',                // Insula — emotional prosody
+    'Right_thalamus',             // Thalamus — auditory relay (MGN)
+  ],
+  writing: [
+    'cortex_occipital',           // Visual cortex — reading prompt + review loop
+    'cortex_broca',               // Broca's — grammatical encoding
+    'cortex_wernicke',            // Phonological — spelling
+    'cortex_motor_cortex',        // Motor — handwriting/typing
+    'cortex_prefrontal',          // dlPFC — working memory + planning
+    'cortex_anterior_temporal',   // Semantic — content generation
+    'Cingulate_gyrus_right',      // ACC — executive, error monitoring
+    'Left_hippocampus1',          // Hippocampus — knowledge retrieval
+    'Right_cerebellar_hemisphere1', // Cerebellum — motor coordination
+  ],
+  attention: [
+    'cortex_occipital',           // Visual cortex — sensory stream
+    'cortex_temporal',            // Auditory cortex — sensory stream
+    'cortex_prefrontal',          // dlPFC — working memory (target template)
+    'cortex_parietal',            // Parietal — spatial attention
+    'Cingulate_gyrus_right',      // ACC — conflict monitoring
+    'Left_hippocampus1',          // Hippocampus — task goal storage
+    'Amygdala1',                  // Amygdala — motivational salience
+    'Right_thalamus',             // Thalamus — sensory gating
+    'Right_thalamus1',            // Thalamus (medial) — attention modulation
+  ],
+  decision: [
+    'cortex_occipital',           // Visual cortex — perceive options
+    'cortex_prefrontal',          // dlPFC + OFC — working memory + value
+    'cortex_anterior_temporal',   // Semantic — comprehend options
+    'Cingulate_gyrus_right',      // ACC — conflict monitoring
+    'Left_hippocampus1',          // Hippocampus — past outcome retrieval
+    'Amygdala1',                  // Amygdala — emotional valuation
+    'Left_insula',                // Insula — somatic markers
+    'Caudate_nucleus1',           // Caudate — reward-based learning
+  ],
+  problemsolving: [
+    'cortex_occipital',           // Visual cortex — encode problem
+    'cortex_prefrontal',          // dlPFC — working memory + strategy
+    'cortex_parietal',            // IPS — spatial/relational reasoning
+    'cortex_anterior_temporal',   // Semantic — known concepts
+    'Cingulate_gyrus_right',      // ACC — strategy switching
+    'Left_hippocampus1',          // Hippocampus — analogical search
+  ],
+  conversation: [
+    'cortex_temporal',            // Auditory cortex — hear partner
+    'cortex_wernicke',            // Wernicke's — decode speech
+    'cortex_broca',               // Broca's — construct reply syntax
+    'cortex_motor_cortex',        // Motor — articulate speech
+    'cortex_anterior_temporal',   // Semantic — extract meaning
+    'cortex_prefrontal',          // dlPFC — working memory, planning
+    'Cingulate_gyrus_right',      // ACC — turn-taking, monitoring
+    'Amygdala1',                  // Amygdala — emotional prosody
+    'Left_insula',                // Insula — social-emotional processing
+    'Left_hippocampus1',          // Hippocampus — shared context
+    'Right_cerebellar_hemisphere1', // Cerebellum — speech timing
+  ],
+  creative: [
+    'cortex_prefrontal',          // Anterior PFC — controlled defocusing
+    'cortex_anterior_temporal',   // Semantic — broad concept activation
+    'cortex_parietal',            // Parietal — relational reasoning
+    'Cingulate_gyrus_right',      // ACC — evaluation
+    'Left_hippocampus1',          // Hippocampus — remote associations
+    'Amygdala1',                  // Amygdala — novelty detection
+    'Caudate_nucleus1',           // Caudate — reward/dopamine signal
+  ],
+  navigation: [
+    'cortex_occipital',           // Visual cortex — scene processing
+    'cortex_parietal',            // IPS — spatial map
+    'cortex_anterior_temporal',   // Semantic — landmark recognition
+    'cortex_motor_cortex',        // Motor — locomotion
+    'cortex_prefrontal',          // dlPFC — route planning
+    'Cingulate_gyrus_right',      // ACC — replanning
+    'Left_hippocampus1',          // Hippocampus — place cells, cognitive map
+    'Right_cerebellar_hemisphere1', // Cerebellum — motor coordination
+  ],
+  running: [
+    'cortex_occipital',           // Visual cortex — terrain scanning
+    'cortex_parietal',            // Parietal — spatial mapping
+    'cortex_motor_cortex',        // Motor — locomotion patterns
+    'cortex_somatosensory',       // Somatosensory — proprioception
+    'cortex_prefrontal',          // dlPFC — pacing goals
+    'Cingulate_gyrus_right',      // ACC — fatigue management
+    'Right_cerebellar_hemisphere1', // Cerebellum — coordination, timing
+    'Caudate_nucleus1',           // Caudate — habit/motor selection
+    'Left_putamen1',              // Putamen — movement initiation
+    'Amygdala1',                  // Amygdala — motivation, runner's high
+    'Brain_stem55',               // Brainstem — autonomic (heart, breathing)
+    'Pons',                       // Pons — cerebellar relay
+  ],
+  startle: [
+    'Amygdala1',                  // Amygdala — fast threat detection (~12ms)
+    'Superior_colliculus',        // Superior colliculus — fast visual orienting
+    'Hypothalamus_and_pituitary1', // Hypothalamus — fight/flight activation
+    'Brain_stem55',               // Brainstem — motor nuclei (flinch/freeze)
+    'cortex_motor_cortex',        // Motor cortex — startle motor response
+    'Right_thalamus',             // Thalamus — sensory relay
+    'cortex_prefrontal',          // dlPFC — conscious registration (delayed)
+    'Cingulate_gyrus_right',      // ACC — threat evaluation (delayed)
+    'Left_hippocampus1',          // Hippocampus — encode the event
+  ],
+  recall: [
+    'cortex_prefrontal',          // dlPFC — direct the search
+    'cortex_anterior_temporal',   // Semantic — contextual framework
+    'cortex_parietal',            // Parietal — spatial context of memory
+    'Left_hippocampus1',          // Hippocampus — pattern completion
+    'Amygdala1',                  // Amygdala — emotional reactivation
+    'Left_insula',                // Insula — emotional re-experiencing
+    'Cingulate_gyrus_right',      // ACC — monitoring accuracy
+    'Fornix_right',               // Fornix — hippocampal output
+    'Mammillary_bodies1',         // Mammillary bodies — Papez circuit
+  ],
+  skilllearning: [
+    'cortex_occipital',           // Visual cortex — observe target
+    'cortex_parietal',            // Parietal — spatial error feedback
+    'cortex_motor_cortex',        // Motor — execute movement
+    'cortex_somatosensory',       // Somatosensory — proprioceptive feedback
+    'cortex_prefrontal',          // dlPFC — working memory, goals
+    'Cingulate_gyrus_right',      // ACC — error monitoring
+    'Right_cerebellar_hemisphere1', // Cerebellum — forward models, automaticity
+    'Caudate_nucleus1',           // Caudate — reward learning
+    'Left_putamen1',              // Putamen — motor program storage
+    'Amygdala1',                  // Amygdala — frustration/reward
+    'Left_hippocampus1',          // Hippocampus — procedural memory encoding
+  ],
+  transcendence: [
+    // NOTE: Executive control is ABSENT — cingulate NOT activated
+    'Left_insula',                // Insula — interoception becomes primary awareness
+    'Amygdala1',                  // Amygdala — shifts from threat to open awareness
+    'Left_hippocampus1',          // Hippocampus — autobiographical self dampens
+    // Default mode network quiets, prefrontal goes offline
+  ],
+  trauma: [
+    'Amygdala1',                  // Amygdala — overwhelms everything
+    'Hypothalamus_and_pituitary1', // Hypothalamus — HPA axis, fight/flight
+    'cortex_motor_cortex',        // Motor — fight/flight/freeze response
+    'Brain_stem55',               // Brainstem — autonomic survival
+    'Left_insula',                // Insula — somatic experiencing
+    'Left_hippocampus1',          // Hippocampus — FAILS to encode coherently
+    'cortex_prefrontal',          // Prefrontal — overwhelmed, goes offline
+    'Cingulate_gyrus_right',      // ACC — attempts regulation, fails
+  ],
+  dreaming: [
+    'Left_hippocampus1',          // Hippocampus — replays memory fragments
+    'Amygdala1',                  // Amygdala — curates by emotional significance
+    'cortex_occipital',           // Visual cortex — generates imagery (hallucinating)
+    'cortex_temporal',            // Temporal — auditory dream content
+    'cortex_anterior_temporal',   // Anterior temporal — loose semantic associations
+    'cortex_motor_cortex',        // Motor cortex — activates but body paralyzed (atonia)
+    'Pons',                       // Pons — generates REM, triggers atonia
+    'Right_thalamus',             // Thalamus — relays internal signals
+    // NOTE: Executive control (prefrontal) is SUPPRESSED during REM
+  ],
 };
