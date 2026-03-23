@@ -2,10 +2,11 @@
 
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ThemeToggle';
-import { useEffect, useRef } from 'react';
+import { useEffect, useRef, useState } from 'react';
 
 export default function BrainPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
+  const [version, setVersion] = useState<'v1' | 'v2'>('v2');
 
   // Sync theme changes into the iframe
   useEffect(() => {
@@ -40,7 +41,31 @@ export default function BrainPage() {
             >
               ← Home
             </Link>
-            <ThemeToggle />
+            <div className="flex items-center gap-2">
+              <div className="flex items-center border border-[var(--border)] rounded-lg overflow-hidden text-xs font-mono">
+                <button
+                  onClick={() => setVersion('v2')}
+                  className={`px-3 py-1.5 transition-colors ${
+                    version === 'v2'
+                      ? 'bg-[var(--foreground)] text-[var(--background)]'
+                      : 'text-[var(--muted)] hover:text-[var(--foreground)]'
+                  }`}
+                >
+                  v2
+                </button>
+                <button
+                  onClick={() => setVersion('v1')}
+                  className={`px-3 py-1.5 transition-colors ${
+                    version === 'v1'
+                      ? 'bg-[var(--foreground)] text-[var(--background)]'
+                      : 'text-[var(--muted)] hover:text-[var(--foreground)]'
+                  }`}
+                >
+                  v1
+                </button>
+              </div>
+              <ThemeToggle />
+            </div>
           </div>
         </div>
       </header>
@@ -57,14 +82,24 @@ export default function BrainPage() {
         </div>
       </section>
 
-      {/* Diagram — tall enough to show content, scrollable as fallback */}
-      <iframe
-        ref={iframeRef}
-        src="/brain-architecture.html"
-        className="w-full border-0"
-        style={{ height: '2600px' }}
-        title="Cognitive Systems Architecture"
-      />
+      {/* Diagram */}
+      {version === 'v1' ? (
+        <iframe
+          ref={iframeRef}
+          src="/brain-architecture-v1.html"
+          className="w-full border-0"
+          style={{ height: '2600px' }}
+          title="Cognitive Systems Architecture v1"
+        />
+      ) : (
+        <iframe
+          ref={iframeRef}
+          src="/brain-architecture.html"
+          className="w-full border-0"
+          style={{ height: '2600px' }}
+          title="Cognitive Systems Architecture v2"
+        />
+      )}
     </main>
   );
 }

@@ -1410,13 +1410,14 @@ const tasks = {
   dreaming: {
     name: 'Dreaming',
     title: 'Dreams and Offline Processing',
-    activeModules: ['memory', 'emotional', 'visual', 'semantic', 'motor'],
+    activeModules: ['visual', 'emotional', 'memory', 'semantic', 'motor'],
     sequence: { memory: 1, emotional: 1, visual: 2, semantic: 2, motor: 3 },
     activePaths: [
       ['memory', 'emotional'],         // hippocampus replays emotionally tagged episodes
       ['memory', 'semantic'],          // memory fragments recombine with conceptual knowledge
+      ['memory', 'workingmem'],        // fragments surface into awareness
       ['emotional', 'memory'],         // amygdala directs which memories get replayed
-      ['emotional', 'motor'],          // dream actions activate motor cortex (blocked by REM atonia)
+      ['emotional', 'motor'],          // emotional content triggers motor twitches (REM atonia bypassed)
       ['semantic', 'emotional'],       // bizarre conceptual associations trigger emotional responses
       ['visual', 'emotional'],         // vivid visual imagery with emotional charge
     ],
