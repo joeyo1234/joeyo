@@ -353,7 +353,7 @@ export default function BrainV2() {
                 zIndex: expanded ? 10 : active ? 5 : hovered ? 5 : 2,
               }}
               animate={{
-                opacity: dimmed ? 0.2 : 1,
+                opacity: dimmed ? 0.5 : 1,
                 x: '-50%',
                 y: '-50%',
                 scale: expanded ? 1.08 : active ? 1.04 : dimmed ? 0.95 : hovered ? 1.05 : 1,
