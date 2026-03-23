@@ -193,25 +193,23 @@ function BrainModel(props: BrainSceneProps) {
   };
 
   return (
-    <>
-      <Center>
-        <group>
-          <group position={[SEPARATION, 0, 0]}>
-            {rightSide.map(renderMesh)}
-          </group>
-          <group position={[-SEPARATION, 0, 0]} scale={[-1, 1, 1]}>
-            {leftSide.map(renderMesh)}
-          </group>
+    <Center>
+      <group>
+        <group position={[SEPARATION, 0, 0]}>
+          {rightSide.map(renderMesh)}
         </group>
-      </Center>
+        <group position={[-SEPARATION, 0, 0]} scale={[-1, 1, 1]}>
+          {leftSide.map(renderMesh)}
+        </group>
 
-      {/* 3D particles flowing between active structures */}
-      <BrainParticles3D
-        structurePositions={structurePositions}
-        activeStructures={activeStructures}
-        activeTask={props.activeTask}
-      />
-    </>
+        {/* 3D particles flowing between active structures */}
+        <BrainParticles3D
+          structurePositions={structurePositions}
+          activeStructures={activeStructures}
+          activeTask={props.activeTask}
+        />
+      </group>
+    </Center>
   );
 }
 

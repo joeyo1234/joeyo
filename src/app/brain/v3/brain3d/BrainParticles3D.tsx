@@ -94,13 +94,16 @@ export default function BrainParticles3D({ structurePositions, activeStructures,
 
     if (activeTask && activeStructures.size > 0) {
       const connections = generateConnections(activeStructures);
+      console.log('[BrainParticles3D] Task:', activeTask, 'Active structures:', [...activeStructures]);
+      console.log('[BrainParticles3D] Available positions:', [...structurePositions.keys()]);
+      console.log('[BrainParticles3D] Connections to emit:', connections.filter(([from, to]) => structurePositions.has(from) && structurePositions.has(to)));
       emittersRef.current = connections
         .filter(([from, to]) => structurePositions.has(from) && structurePositions.has(to))
         .map(([from, to]) => ({
           fromId: from,
           toId: to,
           color: new THREE.Color(structureColors[from] || '#888'),
-          timeSinceLast: Math.random() * 500, // stagger start
+          timeSinceLast: Math.random() * 500,
           rate: 1.5,
         }));
     }
@@ -149,7 +152,7 @@ export default function BrainParticles3D({ structurePositions, activeStructures,
             speed: 0.3 + Math.random() * 0.4,
             color: em.color.clone(),
             alive: true,
-            size: 0.4 + Math.random() * 0.3,
+            size: 0.8 + Math.random() * 0.5,
           });
         }
         em.timeSinceLast -= interval;
