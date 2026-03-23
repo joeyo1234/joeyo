@@ -140,24 +140,50 @@ function BrainModel(props: BrainSceneProps) {
   // Compute 3D center positions for each structure (for particle paths)
   const structurePositions = useMemo(() => {
     const positions = new Map<string, THREE.Vector3>();
-    const SEPARATION = -14;
+    const SEP = -14;
 
-    // Right side structures — offset by SEPARATION
     for (const entry of rightSide) {
-      if (entry.structureId && !entry.isHemisphere) {
-        const geo = entry.geometry;
-        geo.computeBoundingBox();
-        if (geo.boundingBox) {
-          const center = new THREE.Vector3();
-          geo.boundingBox.getCenter(center);
-          // Apply mesh transform
-          center.x = center.x * entry.scale[0] + entry.position[0] + SEPARATION;
-          center.y = center.y * entry.scale[1] + entry.position[1];
-          center.z = center.z * entry.scale[2] + entry.position[2];
-          positions.set(entry.structureId, center);
+      if (!entry.structureId) continue;
+
+      const geo = entry.geometry;
+      const posAttr = geo.getAttribute('position');
+      const indexAttr = geo.getIndex();
+      if (!posAttr) continue;
+
+      // Compute center from INDEXED vertices only (important for cortical regions
+      // which share the full hemisphere vertex buffer but only index a subset)
+      let sumX = 0, sumY = 0, sumZ = 0, count = 0;
+
+      if (indexAttr) {
+        // Use a set to avoid counting shared vertices multiple times
+        const seen = new Set<number>();
+        for (let i = 0; i < indexAttr.count; i++) {
+          const idx = indexAttr.getX(i);
+          if (seen.has(idx)) continue;
+          seen.add(idx);
+          sumX += posAttr.getX(idx);
+          sumY += posAttr.getY(idx);
+          sumZ += posAttr.getZ(idx);
+          count++;
+        }
+      } else {
+        for (let i = 0; i < posAttr.count; i++) {
+          sumX += posAttr.getX(i);
+          sumY += posAttr.getY(i);
+          sumZ += posAttr.getZ(i);
+          count++;
         }
       }
+
+      if (count > 0) {
+        const cx = (sumX / count) * entry.scale[0] + entry.position[0] + SEP;
+        const cy = (sumY / count) * entry.scale[1] + entry.position[1];
+        const cz = (sumZ / count) * entry.scale[2] + entry.position[2];
+        positions.set(entry.structureId, new THREE.Vector3(cx, cy, cz));
+      }
     }
+
+    console.log('[BrainScene] Structure positions computed:', positions.size, 'structures', [...positions.keys()].slice(0, 8).join(', '), '...');
     return positions;
   }, [rightSide]);
 
