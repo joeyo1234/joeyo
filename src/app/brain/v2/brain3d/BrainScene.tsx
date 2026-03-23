@@ -47,6 +47,7 @@ function BrainModel(props: BrainSceneProps) {
         const moduleColor = moduleId ? (modules[moduleId]?.color ?? '#888') : '#888';
         const isHemisphere = mesh.name.includes('Hemisphere');
 
+        // Original (right side)
         entries.push({
           name: mesh.name,
           geometry: mesh.geometry,
@@ -56,6 +57,23 @@ function BrainModel(props: BrainSceneProps) {
           position: [mesh.position.x, mesh.position.y, mesh.position.z],
           rotation: [mesh.rotation.x, mesh.rotation.y, mesh.rotation.z],
           scale: [mesh.scale.x, mesh.scale.y, mesh.scale.z],
+        });
+
+        // Mirrored (left side) — flip X axis
+        const mirrorName = `Mirror_${mesh.name}`;
+        const mirrorMapping = meshLookup.get(mirrorName);
+        const mirrorModuleId = mirrorMapping?.moduleId ?? moduleId; // fallback to same module
+        const mirrorModuleColor = mirrorModuleId ? (modules[mirrorModuleId]?.color ?? '#888') : '#888';
+
+        entries.push({
+          name: mirrorName,
+          geometry: mesh.geometry, // shared geometry — scale flip handles mirroring
+          moduleId: mirrorModuleId,
+          moduleColor: mirrorModuleColor,
+          isHemisphere,
+          position: [-mesh.position.x, mesh.position.y, mesh.position.z],
+          rotation: [mesh.rotation.x, -mesh.rotation.y, -mesh.rotation.z],
+          scale: [-mesh.scale.x, mesh.scale.y, mesh.scale.z],
         });
       }
     });
