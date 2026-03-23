@@ -87,7 +87,7 @@ function BrainModel(props: BrainSceneProps) {
   const neutralColor = props.isDark ? '#444' : '#bbb';
 
   // Separation offset — pushes each hemisphere outward from center
-  const SEPARATION = -15;
+  const SEPARATION = -13.5;
 
   const renderMesh = (entry: MeshEntry) => (
     <BrainMesh
