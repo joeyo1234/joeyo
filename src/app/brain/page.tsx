@@ -3,13 +3,15 @@
 import Link from 'next/link';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useEffect, useRef, useState } from 'react';
+import BrainV2 from './v2/BrainV2';
 
 export default function BrainPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
   const [version, setVersion] = useState<'v1' | 'v2'>('v1');
 
-  // Sync theme changes into the iframe
+  // Sync theme changes into the v1 iframe
   useEffect(() => {
+    if (version !== 'v1') return;
     const syncTheme = () => {
       const theme = document.documentElement.getAttribute('data-theme') || 'dark';
       try {
@@ -27,7 +29,7 @@ export default function BrainPage() {
       iframe?.removeEventListener('load', syncTheme);
       observer.disconnect();
     };
-  }, []);
+  }, [version]);
 
   return (
     <main className="min-h-screen">
@@ -82,7 +84,7 @@ export default function BrainPage() {
         </div>
       </section>
 
-      {/* Diagram */}
+      {/* Content */}
       {version === 'v1' ? (
         <iframe
           ref={iframeRef}
@@ -92,13 +94,7 @@ export default function BrainPage() {
           title="Cognitive Systems Architecture v1"
         />
       ) : (
-        <iframe
-          ref={iframeRef}
-          src="/brain-architecture.html"
-          className="w-full border-0"
-          style={{ height: '2600px' }}
-          title="Cognitive Systems Architecture v2"
-        />
+        <BrainV2 />
       )}
     </main>
   );
