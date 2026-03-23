@@ -4,10 +4,11 @@ import Link from 'next/link';
 import { ThemeToggle } from '@/components/ThemeToggle';
 import { useEffect, useRef, useState } from 'react';
 import BrainV2 from './v2/BrainV2';
+import BrainV3 from './v3/BrainV3';
 
 export default function BrainPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [version, setVersion] = useState<'v1' | 'v2'>('v1');
+  const [version, setVersion] = useState<'v1' | 'v2' | 'v3'>('v3');
 
   // Sync theme changes into the v1 iframe
   useEffect(() => {
@@ -65,6 +66,16 @@ export default function BrainPage() {
                 >
                   v2
                 </button>
+                <button
+                  onClick={() => setVersion('v3')}
+                  className={`px-2 py-1 rounded transition-colors ${
+                    version === 'v3'
+                      ? 'text-[var(--foreground)] opacity-100'
+                      : 'text-[var(--muted)] opacity-40 hover:opacity-70'
+                  }`}
+                >
+                  v3
+                </button>
               </div>
               <ThemeToggle />
             </div>
@@ -93,8 +104,10 @@ export default function BrainPage() {
           style={{ height: '2600px' }}
           title="Cognitive Systems Architecture v1"
         />
-      ) : (
+      ) : version === 'v2' ? (
         <BrainV2 />
+      ) : (
+        <BrainV3 />
       )}
     </main>
   );
