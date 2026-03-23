@@ -1383,6 +1383,29 @@ const tasks = {
       { label: 'Memory \u2192 Emotional', desc: 'Normally the hippocampus constantly feeds autobiographical context to the amygdala (\u201cwho am I, what happened, what might happen\u201d). In transcendence, this loop dampens \u2014 the autobiographical self temporarily dissolves. Psychedelic research shows this pathway is specifically disrupted: default mode network connectivity drops, and subjects report ego dissolution, unity experiences, and loss of self-other boundaries. The loop\u2019s quieting is what meditators describe as \u201cno self.\u201d' },
       { label: 'Emotional \u2192 Memory', desc: 'The emotional system\u2019s signal to hippocampus shifts from encoding threat-relevant events to a state of open, non-judgmental awareness. In this mode, the hippocampus stops its usual future-simulation and past-rumination. The result is the \u201ceternal present\u201d reported across contemplative traditions \u2014 no time anxiety, no regret, no anticipation. fMRI shows experienced meditators can sustain this altered emotional\u2192memory state for extended periods, suggesting it is a trainable skill, not a mystical accident.' }
     ]
+  },
+  trauma: {
+    name: 'Trauma Response',
+    title: 'Traumatic Stress and System Breakdown',
+    activeModules: ['visual', 'auditory', 'emotional', 'motor', 'memory', 'workingmem', 'executive'],
+    sequence: { visual: 1, auditory: 1, emotional: 1, motor: 2, memory: 3, workingmem: 4, executive: 4 },
+    activePaths: [
+      ['visual', 'emotional'],         // threat image floods amygdala
+      ['auditory', 'emotional'],       // threat sound floods amygdala
+      ['emotional', 'motor'],          // fight/flight/freeze \u2014 immediate survival response
+      ['emotional', 'memory'],         // amygdala overwhelms hippocampus \u2014 fragmented encoding
+      ['emotional', 'workingmem'],     // emotional flooding overwhelms working memory capacity
+      ['emotional', 'executive'],      // amygdala overrides prefrontal control
+      ['memory', 'emotional'],         // fragments re-trigger emotional response (flashbacks)
+      ['executive', 'emotional'],      // attempted top-down regulation \u2014 often fails
+      ['executive', 'workingmem'],     // trying to make sense of what happened
+    ],
+    desc: 'Trauma reveals what happens when the brain\u2019s architecture is <em>overwhelmed</em> rather than orchestrated. Sensory input \u2014 <strong>visual and auditory cortex</strong> processing the threatening event \u2014 floods the <strong>amygdala</strong> with threat signals so intense they <em>override</em> normal processing. The amygdala triggers <strong>motor cortex and brainstem</strong> for immediate survival (fight, flight, or freeze) while simultaneously overwhelming <strong>working memory (dlPFC)</strong>, which loses its capacity to hold coherent representations. Critically, the <strong>hippocampus</strong> cannot perform normal episodic encoding under extreme amygdala activation \u2014 the memory is stored as disconnected sensory fragments (a sound, a smell, a body sensation) rather than a coherent narrative with a beginning, middle, and end. <strong>Executive control (anterior PFC, ACC)</strong> attempts top-down regulation but is overpowered by the amygdala\u2019s alarm signal. The result: the event is stored in emotional and sensory memory but not properly integrated into autobiographical narrative. This is why trauma memories are experienced as <em>reliving</em> rather than <em>remembering</em> \u2014 they intrude as raw sensory-emotional fragments without temporal context, as if still happening now. Van der Kolk\u2019s principle: \u201cthe body keeps the score.\u201d',
+    bridges: [
+      { label: 'Emotional \u2192 Memory', desc: 'The central wound of trauma. Under extreme amygdala activation, the hippocampus cannot bind sensory fragments into a coherent, time-stamped episodic memory. The event gets stored as disconnected pieces \u2014 a visual flash, a sound, a body sensation, an emotion \u2014 without the narrative wrapper that normally tells us \u201cthis happened in the past.\u201d This is why PTSD flashbacks feel like the event is happening <em>now</em>: the memory was never properly encoded as \u201cpast.\u201d Trauma therapy (EMDR, prolonged exposure) works by re-engaging the hippocampus to retroactively bind these fragments into coherent narrative.' },
+      { label: 'Emotional \u2192 Executive', desc: 'In trauma, the amygdala\u2019s threat signal overwhelms prefrontal executive control \u2014 the rational mind goes offline. This is not a failure of willpower; it is a neurobiological reality. The prefrontal cortex literally cannot override the amygdala when threat activation exceeds a threshold. In PTSD, this pathway remains chronically dysregulated: the amygdala stays hyperactive and the prefrontal cortex stays suppressed, producing hypervigilance, emotional reactivity, and difficulty with cognitive tasks that require executive control. This is why telling a traumatized person to \u201cjust think rationally\u201d is neurologically naive.' },
+      { label: 'Memory \u2192 Emotional', desc: 'The feedback loop that perpetuates trauma. Fragmented memory traces stored without temporal context spontaneously reactivate the amygdala \u2014 a car backfire triggers the full emotional-somatic state of an explosion, because the hippocampus never encoded \u201cthat was then, this is now.\u201d The amygdala cannot distinguish a memory fragment from a current threat. Treatment targets this loop specifically: by carefully re-exposing the patient to trauma cues while maintaining prefrontal engagement (safety, therapeutic relationship), the hippocampus finally gets the chance to properly contextualize the fragments and break the re-triggering cycle.' }
+    ]
   }
 };
 
