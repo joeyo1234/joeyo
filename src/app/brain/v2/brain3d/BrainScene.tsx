@@ -52,6 +52,8 @@ function BrainModel(props: BrainSceneProps) {
 
     let hemisphereGeometry: THREE.BufferGeometry | null = null;
     let hemispherePosition: [number, number, number] = [0, 0, 0];
+    let hemisphereRotation: [number, number, number] = [0, 0, 0];
+    let hemisphereScale: [number, number, number] = [1, 1, 1];
 
     scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
@@ -62,6 +64,9 @@ function BrainModel(props: BrainSceneProps) {
           // Don't add hemisphere directly — we'll split it
           hemisphereGeometry = mesh.geometry;
           hemispherePosition = [mesh.position.x, mesh.position.y, mesh.position.z];
+          hemisphereRotation = [mesh.rotation.x, mesh.rotation.y, mesh.rotation.z];
+          hemisphereScale = [mesh.scale.x, mesh.scale.y, mesh.scale.z];
+          console.log('[BrainModel3D] Hemisphere scale:', hemisphereScale, 'position:', hemispherePosition);
           return;
         }
 
@@ -103,10 +108,10 @@ function BrainModel(props: BrainSceneProps) {
           geometry: region.geometry,
           structureId: region.meshName,
           color: region.color,
-          isHemisphere: true, // keeps translucent rendering
+          isHemisphere: true,
           position: hemispherePosition,
-          rotation: [0, 0, 0],
-          scale: [1, 1, 1],
+          rotation: hemisphereRotation,
+          scale: hemisphereScale,
         });
 
         // Left side (mirror)
@@ -118,8 +123,8 @@ function BrainModel(props: BrainSceneProps) {
           color: region.color,
           isHemisphere: true,
           position: hemispherePosition,
-          rotation: [0, 0, 0],
-          scale: [1, 1, 1],
+          rotation: hemisphereRotation,
+          scale: hemisphereScale,
         });
       }
     }
