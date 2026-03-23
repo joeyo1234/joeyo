@@ -57,14 +57,13 @@ export default function BrainPage() {
         </div>
       </section>
 
-      {/* Diagram — fixed height, no auto-resize */}
+      {/* Diagram — tall enough to show content, scrollable as fallback */}
       <iframe
         ref={iframeRef}
         src="/brain-architecture.html"
         className="w-full border-0"
-        style={{ height: '2200px' }}
+        style={{ height: '2600px' }}
         title="Cognitive Systems Architecture"
-        scrolling="no"
       />
     </main>
   );
