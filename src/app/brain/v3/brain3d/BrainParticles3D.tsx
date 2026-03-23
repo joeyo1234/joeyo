@@ -152,7 +152,7 @@ export default function BrainParticles3D({ structurePositions, activeStructures,
             speed: 0.3 + Math.random() * 0.4,
             color: em.color.clone(),
             alive: true,
-            size: 0.8 + Math.random() * 0.5,
+            size: 2 + Math.random() * 1.5,
           });
         }
         em.timeSinceLast -= interval;
@@ -203,12 +203,13 @@ export default function BrainParticles3D({ structurePositions, activeStructures,
   });
 
   return (
-    <instancedMesh ref={meshRef} args={[undefined, undefined, MAX_PARTICLES]}>
-      <sphereGeometry args={[1, 8, 6]} />
+    <instancedMesh ref={meshRef} args={[undefined, undefined, MAX_PARTICLES]} renderOrder={999}>
+      <sphereGeometry args={[1, 12, 8]} />
       <meshBasicMaterial
         transparent
-        opacity={0.8}
+        opacity={0.95}
         toneMapped={false}
+        depthTest={false}
       />
     </instancedMesh>
   );
