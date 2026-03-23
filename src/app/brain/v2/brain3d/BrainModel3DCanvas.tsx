@@ -5,12 +5,11 @@ import BrainScene from './BrainScene';
 
 interface Props {
   activeTask: string | null;
-  selectedRegion: string | null;
+  selectedStructure: string | null;
   cascadeActive: string[];
-  hoveredModule: string | null;
-  activeModules: string[];
-  onModuleHover: (id: string | null) => void;
-  onModuleClick: (id: string) => void;
+  hoveredStructure: string | null;
+  onStructureHover: (meshName: string | null) => void;
+  onStructureClick: (meshName: string) => void;
   isDark: boolean;
 }
 

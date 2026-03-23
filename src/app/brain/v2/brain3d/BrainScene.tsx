@@ -4,39 +4,48 @@ import { Suspense, useMemo, useEffect } from 'react';
 import { useGLTF, OrbitControls, Html, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import BrainMesh from './BrainMesh';
-import { buildMeshLookup } from './brainMeshMapping';
-import { modules } from '../data';
+import { brainStructures, taskStructureActivations } from './brainStructures';
 
 interface BrainSceneProps {
   activeTask: string | null;
-  selectedRegion: string | null;
+  selectedStructure: string | null;
   cascadeActive: string[];
-  hoveredModule: string | null;
-  activeModules: string[];
-  onModuleHover: (id: string | null) => void;
-  onModuleClick: (id: string) => void;
+  hoveredStructure: string | null;
+  onStructureHover: (meshName: string | null) => void;
+  onStructureClick: (meshName: string) => void;
   isDark: boolean;
 }
 
+type MeshEntry = {
+  name: string;
+  geometry: THREE.BufferGeometry;
+  structureId: string | null; // key into brainStructures
+  color: string;
+  isHemisphere: boolean;
+  position: [number, number, number];
+  rotation: [number, number, number];
+  scale: [number, number, number];
+};
+
 function BrainModel(props: BrainSceneProps) {
   const { scene, nodes } = useGLTF('/brain-model.glb');
-  const meshLookup = useMemo(() => buildMeshLookup(), []);
 
-  // Log mesh names for debugging
   useEffect(() => {
     console.log('[BrainModel3D] GLB nodes:', Object.keys(nodes));
   }, [nodes]);
 
-  type MeshEntry = {
-    name: string;
-    geometry: THREE.BufferGeometry;
-    moduleId: string | null;
-    moduleColor: string;
-    isHemisphere: boolean;
-    position: [number, number, number];
-    rotation: [number, number, number];
-    scale: [number, number, number];
-  };
+  // Active structures for current task
+  const activeStructures = useMemo(() => {
+    if (!props.activeTask) return new Set<string>();
+    const taskStructures = taskStructureActivations[props.activeTask] || [];
+    // Include both original and mirrored versions
+    const all = new Set<string>();
+    taskStructures.forEach(s => {
+      all.add(s);
+      all.add(`Mirror_${s}`);
+    });
+    return all;
+  }, [props.activeTask]);
 
   const { rightSide, leftSide } = useMemo(() => {
     const right: MeshEntry[] = [];
@@ -45,34 +54,27 @@ function BrainModel(props: BrainSceneProps) {
     scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
-        const mapping = meshLookup.get(mesh.name);
-        const moduleId = mapping?.moduleId ?? null;
-        const moduleColor = moduleId ? (modules[moduleId]?.color ?? '#888') : '#888';
+        const structure = brainStructures[mesh.name];
+        const color = structure?.color || '#888';
         const isHemisphere = mesh.name.includes('Hemisphere');
 
-        // Original (right side)
         right.push({
           name: mesh.name,
           geometry: mesh.geometry,
-          moduleId,
-          moduleColor,
+          structureId: structure ? mesh.name : null,
+          color,
           isHemisphere,
           position: [mesh.position.x, mesh.position.y, mesh.position.z],
           rotation: [mesh.rotation.x, mesh.rotation.y, mesh.rotation.z],
           scale: [mesh.scale.x, mesh.scale.y, mesh.scale.z],
         });
 
-        // Mirrored (left side)
         const mirrorName = `Mirror_${mesh.name}`;
-        const mirrorMapping = meshLookup.get(mirrorName);
-        const mirrorModuleId = mirrorMapping?.moduleId ?? moduleId;
-        const mirrorModuleColor = mirrorModuleId ? (modules[mirrorModuleId]?.color ?? '#888') : '#888';
-
         left.push({
           name: mirrorName,
           geometry: mesh.geometry,
-          moduleId: mirrorModuleId,
-          moduleColor: mirrorModuleColor,
+          structureId: structure ? mesh.name : null, // points to same structure data
+          color,
           isHemisphere,
           position: [mesh.position.x, mesh.position.y, mesh.position.z],
           rotation: [mesh.rotation.x, mesh.rotation.y, mesh.rotation.z],
@@ -82,40 +84,43 @@ function BrainModel(props: BrainSceneProps) {
     });
 
     return { rightSide: right, leftSide: left };
-  }, [scene, meshLookup]);
+  }, [scene]);
 
   const neutralColor = props.isDark ? '#444' : '#bbb';
-
-  // Separation offset — pushes each hemisphere outward from center
   const SEPARATION = -14;
 
-  const renderMesh = (entry: MeshEntry) => (
-    <BrainMesh
-      key={entry.name}
-      geometry={entry.geometry}
-      moduleId={entry.moduleId}
-      moduleColor={entry.moduleColor}
-      isActive={entry.moduleId ? props.cascadeActive.includes(entry.moduleId) : false}
-      isDimmed={entry.moduleId ? (props.activeTask ? !props.activeModules.includes(entry.moduleId) : props.selectedRegion ? entry.moduleId !== props.selectedRegion : false) : false}
-      isSelected={entry.moduleId === props.selectedRegion}
-      isHemisphere={entry.isHemisphere}
-      onHover={props.onModuleHover}
-      onClick={(id) => { if (id) props.onModuleClick(id); }}
-      neutralColor={neutralColor}
-      position={entry.position}
-      rotation={entry.rotation}
-      scale={entry.scale}
-    />
-  );
+  const renderMesh = (entry: MeshEntry) => {
+    const isActive = activeStructures.has(entry.name);
+    const isSelected = entry.structureId === props.selectedStructure || entry.name === props.selectedStructure;
+    const isHovered = entry.structureId === props.hoveredStructure || entry.name === props.hoveredStructure;
+    const isDimmed = props.activeTask ? !activeStructures.has(entry.name) : props.selectedStructure ? !isSelected : false;
+
+    return (
+      <BrainMesh
+        key={entry.name}
+        geometry={entry.geometry}
+        moduleId={entry.structureId}
+        moduleColor={entry.color}
+        isActive={isActive}
+        isDimmed={isDimmed}
+        isSelected={isSelected}
+        isHemisphere={entry.isHemisphere}
+        onHover={(id) => props.onStructureHover(id ? entry.structureId : null)}
+        onClick={(id) => { if (entry.structureId) props.onStructureClick(entry.structureId); }}
+        neutralColor={neutralColor}
+        position={entry.position}
+        rotation={entry.rotation}
+        scale={entry.scale}
+      />
+    );
+  };
 
   return (
     <Center>
       <group>
-        {/* Right hemisphere — offset right */}
         <group position={[SEPARATION, 0, 0]}>
           {rightSide.map(renderMesh)}
         </group>
-        {/* Left hemisphere — mirrored and offset left */}
         <group position={[-SEPARATION, 0, 0]} scale={[-1, 1, 1]}>
           {leftSide.map(renderMesh)}
         </group>
@@ -136,7 +141,7 @@ export default function BrainScene(props: BrainSceneProps) {
         enableZoom={true}
         minDistance={50}
         maxDistance={250}
-        autoRotate={!props.activeTask && !props.selectedRegion}
+        autoRotate={!props.activeTask && !props.selectedStructure}
         autoRotateSpeed={0.5}
         dampingFactor={0.05}
         enableDamping

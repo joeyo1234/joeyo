@@ -434,12 +434,11 @@ export default function BrainV2() {
       <div className="mt-4">
         <BrainModel3D
           activeTask={activeTask}
-          selectedRegion={selectedRegion}
+          selectedStructure={selectedRegion}
           cascadeActive={cascadeActive}
-          hoveredModule={hoveredModule}
-          activeModules={task?.activeModules ?? []}
-          onModuleHover={setHoveredModule}
-          onModuleClick={handleModuleClick}
+          hoveredStructure={hoveredModule}
+          onStructureHover={setHoveredModule}
+          onStructureClick={handleModuleClick}
         />
       </div>
 

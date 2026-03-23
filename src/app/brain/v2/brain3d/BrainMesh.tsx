@@ -43,13 +43,13 @@ export default function BrainMesh({
   }, [moduleId, moduleColor, neutralColor]);
 
   const targetOpacity = useMemo(() => {
-    if (isHemisphere) return 0.08; // always very translucent
-    if (!moduleId) return 0.12; // unmapped: subtle
-    if (isSelected) return 0.9;
-    if (isActive) return 0.8;
-    if (hovered) return 0.55;
-    if (isDimmed) return 0.08;
-    return 0.2; // default resting
+    if (isHemisphere) return 0.06; // very translucent shell
+    if (isSelected) return 0.95;
+    if (isActive) return 0.85;
+    if (hovered) return 0.7;
+    if (isDimmed) return 0.15;
+    if (!moduleId) return 0.35; // unmapped: still clearly visible
+    return 0.5; // default resting — solid enough to see
   }, [moduleId, isActive, isDimmed, isSelected, hovered, isHemisphere]);
 
   const targetEmissive = useMemo(() => {
