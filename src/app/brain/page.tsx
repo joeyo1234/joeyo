@@ -6,7 +6,7 @@ import { useEffect, useRef, useState } from 'react';
 
 export default function BrainPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [version, setVersion] = useState<'v1' | 'v2'>('v2');
+  const [version, setVersion] = useState<'v1' | 'v2'>('v1');
 
   // Sync theme changes into the iframe
   useEffect(() => {
@@ -42,26 +42,26 @@ export default function BrainPage() {
               ← Home
             </Link>
             <div className="flex items-center gap-2">
-              <div className="flex items-center border border-[var(--border)] rounded-lg overflow-hidden text-xs font-mono">
-                <button
-                  onClick={() => setVersion('v2')}
-                  className={`px-3 py-1.5 transition-colors ${
-                    version === 'v2'
-                      ? 'bg-[var(--foreground)] text-[var(--background)]'
-                      : 'text-[var(--muted)] hover:text-[var(--foreground)]'
-                  }`}
-                >
-                  v2
-                </button>
+              <div className="flex items-center gap-1 text-xs font-mono">
                 <button
                   onClick={() => setVersion('v1')}
-                  className={`px-3 py-1.5 transition-colors ${
+                  className={`px-2 py-1 rounded transition-colors ${
                     version === 'v1'
-                      ? 'bg-[var(--foreground)] text-[var(--background)]'
-                      : 'text-[var(--muted)] hover:text-[var(--foreground)]'
+                      ? 'text-[var(--foreground)] opacity-100'
+                      : 'text-[var(--muted)] opacity-40 hover:opacity-70'
                   }`}
                 >
                   v1
+                </button>
+                <button
+                  onClick={() => setVersion('v2')}
+                  className={`px-2 py-1 rounded transition-colors ${
+                    version === 'v2'
+                      ? 'text-[var(--foreground)] opacity-100'
+                      : 'text-[var(--muted)] opacity-40 hover:opacity-70'
+                  }`}
+                >
+                  v2
                 </button>
               </div>
               <ThemeToggle />
