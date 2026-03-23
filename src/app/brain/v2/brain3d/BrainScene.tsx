@@ -71,12 +71,16 @@ function BrainModel(props: BrainSceneProps) {
         }
 
         const structure = brainStructures[mesh.name];
+        if (!structure) {
+          console.warn('[BrainModel3D] No structure data for mesh:', JSON.stringify(mesh.name), '- available keys:', Object.keys(brainStructures).slice(0, 5).join(', '), '...');
+        }
         const color = structure?.color || '#888';
 
+        // Always use mesh.name as structureId so every mesh is clickable
         right.push({
           name: mesh.name,
           geometry: mesh.geometry,
-          structureId: structure ? mesh.name : null,
+          structureId: mesh.name,
           color,
           isHemisphere: false,
           position: [mesh.position.x, mesh.position.y, mesh.position.z],
@@ -88,7 +92,7 @@ function BrainModel(props: BrainSceneProps) {
         left.push({
           name: mirrorName,
           geometry: mesh.geometry,
-          structureId: structure ? mesh.name : null,
+          structureId: mesh.name,
           color,
           isHemisphere: false,
           position: [mesh.position.x, mesh.position.y, mesh.position.z],
