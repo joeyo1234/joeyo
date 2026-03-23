@@ -5,6 +5,7 @@ import { useGLTF, OrbitControls, Html, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import BrainMesh from './BrainMesh';
 import { brainStructures, taskStructureActivations } from './brainStructures';
+import { splitHemisphere } from './splitHemisphere';
 
 interface BrainSceneProps {
   activeTask: string | null;
@@ -19,7 +20,7 @@ interface BrainSceneProps {
 type MeshEntry = {
   name: string;
   geometry: THREE.BufferGeometry;
-  structureId: string | null; // key into brainStructures
+  structureId: string | null;
   color: string;
   isHemisphere: boolean;
   position: [number, number, number];
@@ -34,11 +35,9 @@ function BrainModel(props: BrainSceneProps) {
     console.log('[BrainModel3D] GLB nodes:', Object.keys(nodes));
   }, [nodes]);
 
-  // Active structures for current task
   const activeStructures = useMemo(() => {
     if (!props.activeTask) return new Set<string>();
     const taskStructures = taskStructureActivations[props.activeTask] || [];
-    // Include both original and mirrored versions
     const all = new Set<string>();
     taskStructures.forEach(s => {
       all.add(s);
@@ -51,19 +50,30 @@ function BrainModel(props: BrainSceneProps) {
     const right: MeshEntry[] = [];
     const left: MeshEntry[] = [];
 
+    let hemisphereGeometry: THREE.BufferGeometry | null = null;
+    let hemispherePosition: [number, number, number] = [0, 0, 0];
+
     scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
         const mesh = child as THREE.Mesh;
+        const isHemisphere = mesh.name.includes('Hemisphere');
+
+        if (isHemisphere) {
+          // Don't add hemisphere directly — we'll split it
+          hemisphereGeometry = mesh.geometry;
+          hemispherePosition = [mesh.position.x, mesh.position.y, mesh.position.z];
+          return;
+        }
+
         const structure = brainStructures[mesh.name];
         const color = structure?.color || '#888';
-        const isHemisphere = mesh.name.includes('Hemisphere');
 
         right.push({
           name: mesh.name,
           geometry: mesh.geometry,
           structureId: structure ? mesh.name : null,
           color,
-          isHemisphere,
+          isHemisphere: false,
           position: [mesh.position.x, mesh.position.y, mesh.position.z],
           rotation: [mesh.rotation.x, mesh.rotation.y, mesh.rotation.z],
           scale: [mesh.scale.x, mesh.scale.y, mesh.scale.z],
@@ -73,15 +83,46 @@ function BrainModel(props: BrainSceneProps) {
         left.push({
           name: mirrorName,
           geometry: mesh.geometry,
-          structureId: structure ? mesh.name : null, // points to same structure data
+          structureId: structure ? mesh.name : null,
           color,
-          isHemisphere,
+          isHemisphere: false,
           position: [mesh.position.x, mesh.position.y, mesh.position.z],
           rotation: [mesh.rotation.x, mesh.rotation.y, mesh.rotation.z],
           scale: [mesh.scale.x, mesh.scale.y, mesh.scale.z],
         });
       }
     });
+
+    // Split the hemisphere into cortical regions
+    if (hemisphereGeometry) {
+      const corticalRegions = splitHemisphere(hemisphereGeometry, hemispherePosition);
+      for (const region of corticalRegions) {
+        // Right side
+        right.push({
+          name: region.meshName,
+          geometry: region.geometry,
+          structureId: region.meshName,
+          color: region.color,
+          isHemisphere: true, // keeps translucent rendering
+          position: hemispherePosition,
+          rotation: [0, 0, 0],
+          scale: [1, 1, 1],
+        });
+
+        // Left side (mirror)
+        const mirrorName = `Mirror_${region.meshName}`;
+        left.push({
+          name: mirrorName,
+          geometry: region.geometry,
+          structureId: region.meshName,
+          color: region.color,
+          isHemisphere: true,
+          position: hemispherePosition,
+          rotation: [0, 0, 0],
+          scale: [1, 1, 1],
+        });
+      }
+    }
 
     return { rightSide: right, leftSide: left };
   }, [scene]);
@@ -90,10 +131,12 @@ function BrainModel(props: BrainSceneProps) {
   const SEPARATION = -14;
 
   const renderMesh = (entry: MeshEntry) => {
-    const isActive = activeStructures.has(entry.name);
+    const isActive = activeStructures.has(entry.name) || activeStructures.has(entry.structureId || '');
     const isSelected = entry.structureId === props.selectedStructure || entry.name === props.selectedStructure;
     const isHovered = entry.structureId === props.hoveredStructure || entry.name === props.hoveredStructure;
-    const isDimmed = props.activeTask ? !activeStructures.has(entry.name) : props.selectedStructure ? !isSelected : false;
+    const isDimmed = props.activeTask
+      ? !isActive
+      : props.selectedStructure ? !isSelected : false;
 
     return (
       <BrainMesh
