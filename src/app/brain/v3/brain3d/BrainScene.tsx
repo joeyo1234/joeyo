@@ -1,6 +1,6 @@
 'use client';
 
-import { Suspense, useMemo, useEffect } from 'react';
+import { Suspense, useMemo, useEffect, useRef } from 'react';
 import { useGLTF, OrbitControls, Html, Center } from '@react-three/drei';
 import * as THREE from 'three';
 import BrainMesh from './BrainMesh';
@@ -31,6 +31,7 @@ type MeshEntry = {
 
 function BrainModel(props: BrainSceneProps) {
   const { scene, nodes } = useGLTF('/brain-model.glb');
+  const brainGroupRef = useRef<THREE.Group>(null);
 
   useEffect(() => {
     console.log('[BrainModel3D] GLB nodes:', Object.keys(nodes));
@@ -137,56 +138,6 @@ function BrainModel(props: BrainSceneProps) {
     return { rightSide: right, leftSide: left };
   }, [scene]);
 
-  // Compute 3D center positions for each structure (for particle paths)
-  const structurePositions = useMemo(() => {
-    const positions = new Map<string, THREE.Vector3>();
-    const SEP = -14;
-
-    for (const entry of rightSide) {
-      if (!entry.structureId) continue;
-
-      const geo = entry.geometry;
-      const posAttr = geo.getAttribute('position');
-      const indexAttr = geo.getIndex();
-      if (!posAttr) continue;
-
-      // Compute center from INDEXED vertices only (important for cortical regions
-      // which share the full hemisphere vertex buffer but only index a subset)
-      let sumX = 0, sumY = 0, sumZ = 0, count = 0;
-
-      if (indexAttr) {
-        // Use a set to avoid counting shared vertices multiple times
-        const seen = new Set<number>();
-        for (let i = 0; i < indexAttr.count; i++) {
-          const idx = indexAttr.getX(i);
-          if (seen.has(idx)) continue;
-          seen.add(idx);
-          sumX += posAttr.getX(idx);
-          sumY += posAttr.getY(idx);
-          sumZ += posAttr.getZ(idx);
-          count++;
-        }
-      } else {
-        for (let i = 0; i < posAttr.count; i++) {
-          sumX += posAttr.getX(i);
-          sumY += posAttr.getY(i);
-          sumZ += posAttr.getZ(i);
-          count++;
-        }
-      }
-
-      if (count > 0) {
-        const cx = (sumX / count) * entry.scale[0] + entry.position[0] + SEP;
-        const cy = (sumY / count) * entry.scale[1] + entry.position[1];
-        const cz = (sumZ / count) * entry.scale[2] + entry.position[2];
-        positions.set(entry.structureId, new THREE.Vector3(cx, cy, cz));
-      }
-    }
-
-    console.log('[BrainScene] Structure positions computed:', positions.size, 'structures', [...positions.keys()].slice(0, 8).join(', '), '...');
-    return positions;
-  }, [rightSide]);
-
   const neutralColor = props.isDark ? '#444' : '#bbb';
   const SEPARATION = -14;
 
@@ -219,23 +170,25 @@ function BrainModel(props: BrainSceneProps) {
   };
 
   return (
-    <Center>
-      <group>
-        <group position={[SEPARATION, 0, 0]}>
-          {rightSide.map(renderMesh)}
+    <>
+      <Center>
+        <group ref={brainGroupRef}>
+          <group position={[SEPARATION, 0, 0]}>
+            {rightSide.map(renderMesh)}
+          </group>
+          <group position={[-SEPARATION, 0, 0]} scale={[-1, 1, 1]}>
+            {leftSide.map(renderMesh)}
+          </group>
         </group>
-        <group position={[-SEPARATION, 0, 0]} scale={[-1, 1, 1]}>
-          {leftSide.map(renderMesh)}
-        </group>
+      </Center>
 
-        {/* 3D particles flowing between active structures */}
-        <BrainParticles3D
-          structurePositions={structurePositions}
-          activeStructures={activeStructures}
-          activeTask={props.activeTask}
-        />
-      </group>
-    </Center>
+      {/* 3D particles — rendered OUTSIDE Center so they use world coordinates */}
+      <BrainParticles3D
+        groupRef={brainGroupRef}
+        activeStructures={activeStructures}
+        activeTask={props.activeTask}
+      />
+    </>
   );
 }
 

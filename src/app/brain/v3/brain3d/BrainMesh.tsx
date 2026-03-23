@@ -73,6 +73,7 @@ export default function BrainMesh({
   return (
     <mesh
       ref={meshRef}
+      name={moduleId || ''}
       geometry={geometry}
       position={position}
       rotation={rotation}
