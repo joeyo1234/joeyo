@@ -102,13 +102,13 @@ function BrainModel(props: BrainSceneProps) {
     if (hemisphereGeometry) {
       const corticalRegions = splitHemisphere(hemisphereGeometry, hemispherePosition);
       for (const region of corticalRegions) {
-        // Right side
+        // Right side — cortical regions are clickable colored pieces, NOT transparent shells
         right.push({
           name: region.meshName,
           geometry: region.geometry,
           structureId: region.meshName,
           color: region.color,
-          isHemisphere: true,
+          isHemisphere: false,
           position: hemispherePosition,
           rotation: hemisphereRotation,
           scale: hemisphereScale,
@@ -121,7 +121,7 @@ function BrainModel(props: BrainSceneProps) {
           geometry: region.geometry,
           structureId: region.meshName,
           color: region.color,
-          isHemisphere: true,
+          isHemisphere: false,
           position: hemispherePosition,
           rotation: hemisphereRotation,
           scale: hemisphereScale,

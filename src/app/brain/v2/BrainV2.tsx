@@ -5,6 +5,7 @@ import { motion, AnimatePresence } from 'framer-motion';
 import { modules, connections, feedbackPaths, tasks, tierBands, brainRegionDetails } from './data';
 import type { Task } from './data';
 import BrainModel3D from './brain3d/BrainModel3D';
+import { brainStructures, taskStructureActivations } from './brain3d/brainStructures';
 
 // ══════════════════════════════════════════════════
 // MAIN COMPONENT
@@ -16,6 +17,7 @@ export default function BrainV2() {
   const [expandedModule, setExpandedModule] = useState<string | null>(null);
   const [cascadeActive, setCascadeActive] = useState<string[]>([]);
   const [hoveredModule, setHoveredModule] = useState<string | null>(null);
+  const [selectedStructure, setSelectedStructure] = useState<string | null>(null);
   const diagramRef = useRef<HTMLDivElement>(null);
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const cascadeTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
@@ -54,6 +56,7 @@ export default function BrainV2() {
   }, [activeTask, runCascade]);
 
   const handleModuleClick = useCallback((modId: string) => {
+    setSelectedStructure(null); // clear any brain structure selection
     if (activeTask) {
       setExpandedModule(expandedModule === modId ? null : modId);
     } else {
@@ -66,6 +69,23 @@ export default function BrainV2() {
       }
     }
   }, [activeTask, expandedModule, selectedRegion]);
+
+  const handleStructureClick = useCallback((structureId: string) => {
+    // Clear task and module selections when clicking a 3D brain structure
+    if (activeTask) {
+      setActiveTask(null);
+      setCascadeActive([]);
+      cascadeTimers.current.forEach(clearTimeout);
+    }
+    setSelectedRegion(null);
+    setExpandedModule(null);
+
+    if (selectedStructure === structureId) {
+      setSelectedStructure(null);
+    } else {
+      setSelectedStructure(structureId);
+    }
+  }, [activeTask, selectedStructure]);
 
   useEffect(() => () => cascadeTimers.current.forEach(clearTimeout), []);
 
@@ -251,6 +271,15 @@ export default function BrainV2() {
   const regionDetail = selectedRegion ? brainRegionDetails[selectedRegion] : null;
   const tasksUsingRegion = selectedRegion ? Object.values(tasks).filter(t => t.activeModules.includes(selectedRegion)) : [];
 
+  // Brain structure detail (from 3D model clicks)
+  const structureDetail = selectedStructure ? brainStructures[selectedStructure] : null;
+  const structureTasksUsing = selectedStructure
+    ? Object.entries(taskStructureActivations)
+        .filter(([, structures]) => structures.includes(selectedStructure!))
+        .map(([taskId]) => tasks[taskId])
+        .filter(Boolean)
+    : [];
+
   return (
     <div className="max-w-[900px] mx-auto px-4 pb-16">
       {/* Task bar */}
@@ -434,19 +463,19 @@ export default function BrainV2() {
       <div className="mt-4">
         <BrainModel3D
           activeTask={activeTask}
-          selectedStructure={selectedRegion}
+          selectedStructure={selectedStructure}
           cascadeActive={cascadeActive}
           hoveredStructure={hoveredModule}
           onStructureHover={setHoveredModule}
-          onStructureClick={handleModuleClick}
+          onStructureClick={handleStructureClick}
         />
       </div>
 
       {/* Info panel */}
       <AnimatePresence mode="wait">
-        {(task || regionDetail) && (
+        {(task || regionDetail || structureDetail) && (
           <motion.div
-            key={activeTask || selectedRegion || 'none'}
+            key={activeTask || selectedRegion || selectedStructure || 'none'}
             initial={{ opacity: 0, y: 12 }}
             animate={{ opacity: 1, y: 0 }}
             exit={{ opacity: 0, y: 8 }}
@@ -472,6 +501,44 @@ export default function BrainV2() {
                       <p className="text-[12px] leading-relaxed pl-3.5" style={{ color: 'var(--muted)' }}>{b.desc}</p>
                     </div>
                   ))}
+                </div>
+              </>
+            ) : structureDetail ? (
+              <>
+                <div>
+                  <p className="text-[10px] font-mono tracking-wider uppercase mb-1" style={{ color: structureDetail.color }}>Brain Structure</p>
+                  <div className="flex items-center gap-2 mb-3">
+                    <div className="w-3 h-3 rounded-full" style={{ background: structureDetail.color, boxShadow: `0 0 8px ${structureDetail.color}` }} />
+                    <h3 className="text-lg font-semibold" style={{ color: 'var(--foreground)' }}>{structureDetail.name}</h3>
+                  </div>
+                  <p className="text-[10px] font-mono mb-3 px-2 py-1 rounded inline-block" style={{ background: 'var(--hover)', color: 'var(--muted)' }}>
+                    {structureDetail.category}
+                  </p>
+                  <p className="text-[13px] leading-relaxed" style={{ color: 'var(--muted)' }}>{structureDetail.description}</p>
+                </div>
+                <div>
+                  <p className="text-[10px] font-mono tracking-wider uppercase mb-3" style={{ color: '#ff4466' }}>Clinical Significance</p>
+                  <p className="text-[12px] leading-relaxed mb-4" style={{ color: 'var(--muted)' }}>{structureDetail.clinical}</p>
+                  {structureDetail.relatedModules.length > 0 && (
+                    <>
+                      <p className="text-[10px] font-mono tracking-wider uppercase mb-2" style={{ color: '#00d4aa' }}>Related Cognitive Modules</p>
+                      <div className="flex flex-wrap gap-1 mb-4">
+                        {structureDetail.relatedModules.map(modId => (
+                          <span key={modId} className="text-[10px] font-mono px-2 py-1 rounded" style={{ background: 'var(--hover)', color: modules[modId]?.color || 'var(--muted)' }}>
+                            {modules[modId]?.name || modId}
+                          </span>
+                        ))}
+                      </div>
+                    </>
+                  )}
+                  <p className="text-[10px] font-mono tracking-wider uppercase mb-2" style={{ color: '#ff8844' }}>Active In Tasks</p>
+                  <div className="flex flex-wrap gap-1">
+                    {structureTasksUsing.map(t => (
+                      <button key={t.id} onClick={() => handleTaskSelect(t.id)} className="text-[10px] font-mono px-2 py-1 rounded hover:bg-[var(--border)] transition-colors" style={{ background: 'var(--hover)', color: 'var(--muted)' }}>
+                        {t.name}
+                      </button>
+                    ))}
+                  </div>
                 </div>
               </>
             ) : regionDetail ? (
