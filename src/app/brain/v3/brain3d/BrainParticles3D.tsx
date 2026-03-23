@@ -78,65 +78,88 @@ export default function BrainParticles3D({ groupRef, activeStructures, activeTas
     if (!initDone.current && groupRef.current) {
       initDone.current = true;
 
-      // Find world positions of active structure meshes by traversing the group
+      // Find world-space geometric centers of active structures
       const positions = new Map<string, THREE.Vector3>();
-      const worldPos = new THREE.Vector3();
 
       groupRef.current.traverse((child) => {
         if ((child as THREE.Mesh).isMesh) {
           const mesh = child as THREE.Mesh;
-          // Check if this mesh's name or structureId matches an active structure
-          const name = mesh.name || mesh.userData?.structureId;
-          if (name && activeStructures.has(name)) {
-            mesh.getWorldPosition(worldPos);
-            positions.set(name, worldPos.clone());
+          const name = mesh.name;
+          if (!name || !activeStructures.has(name)) return;
+          if (positions.has(name)) return; // already computed
+
+          // Compute the actual geometric centroid in world space
+          const geo = mesh.geometry;
+          const posAttr = geo.getAttribute('position');
+          if (!posAttr) return;
+
+          const indexAttr = geo.getIndex();
+          let sumX = 0, sumY = 0, sumZ = 0, count = 0;
+          const localPos = new THREE.Vector3();
+
+          if (indexAttr) {
+            const seen = new Set<number>();
+            for (let i = 0; i < Math.min(indexAttr.count, 3000); i++) {
+              const idx = indexAttr.getX(i);
+              if (seen.has(idx)) continue;
+              seen.add(idx);
+              localPos.set(posAttr.getX(idx), posAttr.getY(idx), posAttr.getZ(idx));
+              mesh.localToWorld(localPos);
+              sumX += localPos.x; sumY += localPos.y; sumZ += localPos.z;
+              count++;
+            }
+          } else {
+            const step = Math.max(1, Math.floor(posAttr.count / 500));
+            for (let i = 0; i < posAttr.count; i += step) {
+              localPos.set(posAttr.getX(i), posAttr.getY(i), posAttr.getZ(i));
+              mesh.localToWorld(localPos);
+              sumX += localPos.x; sumY += localPos.y; sumZ += localPos.z;
+              count++;
+            }
+          }
+
+          if (count > 0) {
+            positions.set(name, new THREE.Vector3(sumX / count, sumY / count, sumZ / count));
           }
         }
       });
 
-      // If no positions found from mesh traversal, try computing from the group's children
-      if (positions.size === 0) {
-        // Fallback: use group children directly
-        groupRef.current.children.forEach((child) => {
-          child.traverse((obj) => {
-            if ((obj as THREE.Mesh).isMesh && obj.name) {
-              obj.getWorldPosition(worldPos);
-              if (activeStructures.has(obj.name)) {
-                positions.set(obj.name, worldPos.clone());
-              }
-            }
-          });
-        });
-      }
+      console.log('[BrainParticles3D] Found', positions.size, 'geometric centers');
 
-      console.log('[BrainParticles3D] Found', positions.size, 'active mesh positions:', [...positions.keys()]);
+      // Create emitters for BOTH hemispheres
+      // Right side (non-mirror) and left side (mirror) separately
+      const rightList = [...activeStructures].filter(s => !s.startsWith('Mirror_') && positions.has(s));
+      const leftList = [...activeStructures].filter(s => s.startsWith('Mirror_') && positions.has(s));
 
-      // Create emitters between consecutive active structures
-      const activeList = [...activeStructures].filter(s => !s.startsWith('Mirror_') && positions.has(s));
-      for (let i = 0; i < activeList.length - 1; i++) {
-        const from = positions.get(activeList[i])!;
-        const to = positions.get(activeList[i + 1])!;
-        emittersRef.current.push({
-          from: from.clone(),
-          to: to.clone(),
-          color: new THREE.Color(structureColors[activeList[i]] || '#888'),
-          timeSinceLast: Math.random() * 400,
-          rate: 2,
-        });
-        // Also connect back for some paths (creates more visual activity)
-        if (i + 2 < activeList.length) {
-          const to2 = positions.get(activeList[i + 2])!;
+      function createEmitters(list: string[]) {
+        for (let i = 0; i < list.length - 1; i++) {
+          const from = positions.get(list[i])!;
+          const to = positions.get(list[i + 1])!;
+          const baseId = list[i].replace('Mirror_', '');
           emittersRef.current.push({
             from: from.clone(),
-            to: to2.clone(),
-            color: new THREE.Color(structureColors[activeList[i]] || '#888'),
-            timeSinceLast: Math.random() * 600,
-            rate: 1,
+            to: to.clone(),
+            color: new THREE.Color(structureColors[baseId] || '#888'),
+            timeSinceLast: Math.random() * 400,
+            rate: 2,
           });
+          if (i + 2 < list.length) {
+            const to2 = positions.get(list[i + 2])!;
+            emittersRef.current.push({
+              from: from.clone(),
+              to: to2.clone(),
+              color: new THREE.Color(structureColors[baseId] || '#888'),
+              timeSinceLast: Math.random() * 600,
+              rate: 1,
+            });
+          }
         }
       }
 
-      console.log('[BrainParticles3D] Created', emittersRef.current.length, 'emitters');
+      createEmitters(rightList);
+      createEmitters(leftList);
+
+      console.log('[BrainParticles3D] Created', emittersRef.current.length, 'emitters (both hemispheres)');
     }
 
     const dt = delta * 1000;

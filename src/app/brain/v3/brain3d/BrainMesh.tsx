@@ -38,25 +38,26 @@ export default function BrainMesh({
   const meshRef = useRef<THREE.Mesh>(null);
   const [hovered, setHovered] = useState(false);
 
+  // All structures render in neutral grey/white — color comes from particles
   const targetColor = useMemo(() => {
-    return new THREE.Color(moduleId ? moduleColor : neutralColor);
-  }, [moduleId, moduleColor, neutralColor]);
+    return new THREE.Color(neutralColor);
+  }, [neutralColor]);
 
   const targetOpacity = useMemo(() => {
-    if (isHemisphere) return 0.04; // cortical regions: very translucent
-    if (isSelected) return 0.7;
-    if (isActive) return 0.55;
-    if (hovered) return 0.45;
-    if (isDimmed) return 0.08;
-    if (!moduleId) return 0.2; // unmapped: subtle
-    return 0.3; // default resting
+    if (isHemisphere) return 0.03;
+    if (isSelected) return 0.4;
+    if (isActive) return 0.3;
+    if (hovered) return 0.25;
+    if (isDimmed) return 0.05;
+    if (!moduleId) return 0.1;
+    return 0.12; // default resting — subtle, lets particles pop
   }, [moduleId, isActive, isDimmed, isSelected, hovered, isHemisphere]);
 
   const targetEmissive = useMemo(() => {
     if (isHemisphere) return 0;
-    if (isSelected) return 0.4;
-    if (isActive) return 0.25;
-    if (hovered) return 0.15;
+    if (isSelected) return 0.2;
+    if (isActive) return 0.1;
+    if (hovered) return 0.08;
     return 0;
   }, [isActive, isSelected, hovered, isHemisphere]);
 
@@ -97,9 +98,9 @@ export default function BrainMesh({
     >
       <meshStandardMaterial
         transparent
-        opacity={0.2}
-        color={moduleId ? moduleColor : neutralColor}
-        emissive={moduleId ? moduleColor : neutralColor}
+        opacity={0.12}
+        color={neutralColor}
+        emissive={neutralColor}
         emissiveIntensity={0}
         roughness={0.6}
         metalness={0.1}
