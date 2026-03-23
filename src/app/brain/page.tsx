@@ -8,7 +8,7 @@ import BrainV3 from './v3/BrainV3';
 
 export default function BrainPage() {
   const iframeRef = useRef<HTMLIFrameElement>(null);
-  const [version, setVersion] = useState<'v1' | 'v2' | 'v3'>('v3');
+  const [version, setVersion] = useState<'v1' | 'v2' | 'v3'>('v1');
 
   // Sync theme changes into the v1 iframe
   useEffect(() => {
