@@ -27,17 +27,20 @@ function BrainModel(props: BrainSceneProps) {
     console.log('[BrainModel3D] GLB nodes:', Object.keys(nodes));
   }, [nodes]);
 
-  const meshEntries = useMemo(() => {
-    const entries: {
-      name: string;
-      geometry: THREE.BufferGeometry;
-      moduleId: string | null;
-      moduleColor: string;
-      isHemisphere: boolean;
-      position: [number, number, number];
-      rotation: [number, number, number];
-      scale: [number, number, number];
-    }[] = [];
+  type MeshEntry = {
+    name: string;
+    geometry: THREE.BufferGeometry;
+    moduleId: string | null;
+    moduleColor: string;
+    isHemisphere: boolean;
+    position: [number, number, number];
+    rotation: [number, number, number];
+    scale: [number, number, number];
+  };
+
+  const { rightSide, leftSide } = useMemo(() => {
+    const right: MeshEntry[] = [];
+    const left: MeshEntry[] = [];
 
     scene.traverse((child) => {
       if ((child as THREE.Mesh).isMesh) {
@@ -48,7 +51,7 @@ function BrainModel(props: BrainSceneProps) {
         const isHemisphere = mesh.name.includes('Hemisphere');
 
         // Original (right side)
-        entries.push({
+        right.push({
           name: mesh.name,
           geometry: mesh.geometry,
           moduleId,
@@ -59,51 +62,63 @@ function BrainModel(props: BrainSceneProps) {
           scale: [mesh.scale.x, mesh.scale.y, mesh.scale.z],
         });
 
-        // Mirrored (left side) — flip X axis
+        // Mirrored (left side)
         const mirrorName = `Mirror_${mesh.name}`;
         const mirrorMapping = meshLookup.get(mirrorName);
-        const mirrorModuleId = mirrorMapping?.moduleId ?? moduleId; // fallback to same module
+        const mirrorModuleId = mirrorMapping?.moduleId ?? moduleId;
         const mirrorModuleColor = mirrorModuleId ? (modules[mirrorModuleId]?.color ?? '#888') : '#888';
 
-        entries.push({
+        left.push({
           name: mirrorName,
-          geometry: mesh.geometry, // shared geometry — scale flip handles mirroring
+          geometry: mesh.geometry,
           moduleId: mirrorModuleId,
           moduleColor: mirrorModuleColor,
           isHemisphere,
-          position: [-mesh.position.x, mesh.position.y, mesh.position.z],
-          rotation: [mesh.rotation.x, -mesh.rotation.y, -mesh.rotation.z],
-          scale: [-mesh.scale.x, mesh.scale.y, mesh.scale.z],
+          position: [mesh.position.x, mesh.position.y, mesh.position.z],
+          rotation: [mesh.rotation.x, mesh.rotation.y, mesh.rotation.z],
+          scale: [mesh.scale.x, mesh.scale.y, mesh.scale.z],
         });
       }
     });
 
-    return entries;
+    return { rightSide: right, leftSide: left };
   }, [scene, meshLookup]);
 
   const neutralColor = props.isDark ? '#444' : '#bbb';
 
+  // Separation offset — pushes each hemisphere outward from center
+  const SEPARATION = 15;
+
+  const renderMesh = (entry: MeshEntry) => (
+    <BrainMesh
+      key={entry.name}
+      geometry={entry.geometry}
+      moduleId={entry.moduleId}
+      moduleColor={entry.moduleColor}
+      isActive={entry.moduleId ? props.cascadeActive.includes(entry.moduleId) : false}
+      isDimmed={entry.moduleId ? (props.activeTask ? !props.activeModules.includes(entry.moduleId) : props.selectedRegion ? entry.moduleId !== props.selectedRegion : false) : false}
+      isSelected={entry.moduleId === props.selectedRegion}
+      isHemisphere={entry.isHemisphere}
+      onHover={props.onModuleHover}
+      onClick={(id) => { if (id) props.onModuleClick(id); }}
+      neutralColor={neutralColor}
+      position={entry.position}
+      rotation={entry.rotation}
+      scale={entry.scale}
+    />
+  );
+
   return (
     <Center>
       <group>
-        {meshEntries.map((entry) => (
-          <BrainMesh
-            key={entry.name}
-            geometry={entry.geometry}
-            moduleId={entry.moduleId}
-            moduleColor={entry.moduleColor}
-            isActive={entry.moduleId ? props.cascadeActive.includes(entry.moduleId) : false}
-            isDimmed={entry.moduleId ? (props.activeTask ? !props.activeModules.includes(entry.moduleId) : props.selectedRegion ? entry.moduleId !== props.selectedRegion : false) : false}
-            isSelected={entry.moduleId === props.selectedRegion}
-            isHemisphere={entry.isHemisphere}
-            onHover={props.onModuleHover}
-            onClick={(id) => { if (id) props.onModuleClick(id); }}
-            neutralColor={neutralColor}
-            position={entry.position}
-            rotation={entry.rotation}
-            scale={entry.scale}
-          />
-        ))}
+        {/* Right hemisphere — offset right */}
+        <group position={[SEPARATION, 0, 0]}>
+          {rightSide.map(renderMesh)}
+        </group>
+        {/* Left hemisphere — mirrored and offset left */}
+        <group position={[-SEPARATION, 0, 0]} scale={[-1, 1, 1]}>
+          {leftSide.map(renderMesh)}
+        </group>
       </group>
     </Center>
   );
