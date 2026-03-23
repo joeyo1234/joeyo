@@ -6,6 +6,7 @@ import * as THREE from 'three';
 import BrainMesh from './BrainMesh';
 import { brainStructures, taskStructureActivations } from './brainStructures';
 import { splitHemisphere } from './splitHemisphere';
+import BrainParticles3D from './BrainParticles3D';
 
 interface BrainSceneProps {
   activeTask: string | null;
@@ -136,6 +137,30 @@ function BrainModel(props: BrainSceneProps) {
     return { rightSide: right, leftSide: left };
   }, [scene]);
 
+  // Compute 3D center positions for each structure (for particle paths)
+  const structurePositions = useMemo(() => {
+    const positions = new Map<string, THREE.Vector3>();
+    const SEPARATION = -14;
+
+    // Right side structures — offset by SEPARATION
+    for (const entry of rightSide) {
+      if (entry.structureId && !entry.isHemisphere) {
+        const geo = entry.geometry;
+        geo.computeBoundingBox();
+        if (geo.boundingBox) {
+          const center = new THREE.Vector3();
+          geo.boundingBox.getCenter(center);
+          // Apply mesh transform
+          center.x = center.x * entry.scale[0] + entry.position[0] + SEPARATION;
+          center.y = center.y * entry.scale[1] + entry.position[1];
+          center.z = center.z * entry.scale[2] + entry.position[2];
+          positions.set(entry.structureId, center);
+        }
+      }
+    }
+    return positions;
+  }, [rightSide]);
+
   const neutralColor = props.isDark ? '#444' : '#bbb';
   const SEPARATION = -14;
 
@@ -168,16 +193,25 @@ function BrainModel(props: BrainSceneProps) {
   };
 
   return (
-    <Center>
-      <group>
-        <group position={[SEPARATION, 0, 0]}>
-          {rightSide.map(renderMesh)}
+    <>
+      <Center>
+        <group>
+          <group position={[SEPARATION, 0, 0]}>
+            {rightSide.map(renderMesh)}
+          </group>
+          <group position={[-SEPARATION, 0, 0]} scale={[-1, 1, 1]}>
+            {leftSide.map(renderMesh)}
+          </group>
         </group>
-        <group position={[-SEPARATION, 0, 0]} scale={[-1, 1, 1]}>
-          {leftSide.map(renderMesh)}
-        </group>
-      </group>
-    </Center>
+      </Center>
+
+      {/* 3D particles flowing between active structures */}
+      <BrainParticles3D
+        structurePositions={structurePositions}
+        activeStructures={activeStructures}
+        activeTask={props.activeTask}
+      />
+    </>
   );
 }
 
