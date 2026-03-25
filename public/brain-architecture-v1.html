@@ -1410,14 +1410,13 @@ const tasks = {
   dreaming: {
     name: 'Dreaming',
     title: 'Dreams and Offline Processing',
-    activeModules: ['visual', 'emotional', 'memory', 'semantic', 'motor'],
+    activeModules: ['memory', 'emotional', 'visual', 'semantic', 'motor'],
     sequence: { memory: 1, emotional: 1, visual: 2, semantic: 2, motor: 3 },
     activePaths: [
       ['memory', 'emotional'],         // hippocampus replays emotionally tagged episodes
       ['memory', 'semantic'],          // memory fragments recombine with conceptual knowledge
-      ['memory', 'workingmem'],        // fragments surface into awareness
       ['emotional', 'memory'],         // amygdala directs which memories get replayed
-      ['emotional', 'motor'],          // emotional content triggers motor twitches (REM atonia bypassed)
+      ['emotional', 'motor'],          // dream actions activate motor cortex (blocked by REM atonia)
       ['semantic', 'emotional'],       // bizarre conceptual associations trigger emotional responses
       ['visual', 'emotional'],         // vivid visual imagery with emotional charge
     ],
@@ -1426,6 +1425,31 @@ const tasks = {
       { label: 'Memory \u2192 Emotional', desc: 'The hippocampus replays emotionally tagged memories during REM, and the amygdala reprocesses the emotional charge. This is thought to serve emotional regulation \u2014 Walker & van der Helm\u2019s \u201csleep to forget, sleep to remember\u201d hypothesis: REM sleep strips the emotional intensity from memories while preserving their informational content. This is why \u201csleeping on it\u201d reduces the sting of a bad day. In depression and PTSD, this overnight emotional processing is disrupted \u2014 patients show abnormal REM patterns and wake with emotions unresolved.' },
       { label: 'Emotional \u2192 Memory', desc: 'The amygdala acts as a curator during dreaming, selecting which memory traces the hippocampus prioritizes for replay and consolidation. Emotionally significant events get replayed more, which is why you dream about stressful situations, unresolved conflicts, and important social encounters rather than routine moments. This emotional tagging system is why traumatic memories can produce nightmares \u2014 the amygdala forces repeated replay of high-threat material, but without executive control to contextualize it, the replay re-traumatizes rather than resolves.' },
       { label: 'Memory \u2192 Semantic', desc: 'During sleep, the hippocampus transfers selected memory traces to neocortical semantic networks \u2014 the systems consolidation process. This is how episodic memories (\u201cwhat happened today\u201d) gradually become semantic knowledge (\u201chow the world works\u201d). The loose associative connections made during this transfer may explain both the bizarreness of dream content and the well-documented phenomenon of creative breakthroughs emerging from sleep. Kekul\u00e9\u2019s benzene ring, Mendeleev\u2019s periodic table, and McCartney\u2019s \u201cYesterday\u201d were all reportedly dream-derived insights.' }
+    ]
+  },
+  fingering: {
+    name: 'Self-Stimulation',
+    title: 'Sexual Self-Stimulation and Pleasure',
+    activeModules: ['motor', 'spatial', 'emotional', 'memory', 'workingmem', 'executive', 'visual'],
+    sequence: { visual: 1, emotional: 1, memory: 2, workingmem: 2, executive: 3, motor: 4, spatial: 4 },
+    activePaths: [
+      ['visual', 'emotional'],         // visual arousal cues \u2192 amygdala/reward circuits
+      ['emotional', 'motor'],          // arousal drives motor initiation
+      ['emotional', 'workingmem'],     // arousal state maintained in awareness
+      ['emotional', 'memory'],         // memory of pleasurable experiences
+      ['memory', 'emotional'],         // fantasy/recall amplifies arousal
+      ['memory', 'workingmem'],        // erotic imagery held in working memory
+      ['workingmem', 'motor'],         // motor commands for rhythmic stimulation
+      ['workingmem', 'executive'],     // attention focused, distractions inhibited
+      ['executive', 'emotional'],      // top-down regulation of arousal pace
+      ['spatial', 'motor'],            // proprioceptive guidance of touch
+      ['executive', 'motor'],          // voluntary control of pace and intensity
+    ],
+    desc: 'Sexual self-stimulation engages a distinctive circuit where the <strong>emotional system</strong> is the central driver rather than a modulator. <strong>Visual cortex</strong> processes arousal cues (real or imagined), rapidly activating the <strong>amygdala and ventral striatum</strong> \u2014 the brain\u2019s reward circuitry. The <strong>hypothalamus</strong> triggers physiological arousal via the autonomic nervous system (increased heart rate, blood flow, skin sensitivity). <strong>The hippocampus</strong> retrieves erotic memories and fantasies, feeding them into <strong>working memory (dlPFC)</strong> which maintains the arousal state and imagery. <strong>Executive control (anterior PFC)</strong> narrows attention and inhibits distractions \u2014 explaining why interruption is jarring. <strong>Motor cortex and premotor areas</strong> generate rhythmic stimulation patterns, guided by <strong>somatosensory/proprioceptive feedback</strong> from the <strong>posterior parietal cortex</strong>. As arousal builds, the <strong>insula</strong> processes increasingly intense interoceptive signals (body awareness), and the <strong>anterior cingulate</strong> monitors the approach to climax. At orgasm, there is a massive dopamine release in the <strong>nucleus accumbens (ventral striatum)</strong> \u2014 comparable to the reward signal from food or drugs \u2014 accompanied by a brief suppression of the <strong>prefrontal cortex</strong> (the \u201closing yourself\u201d feeling). Post-orgasm, prolactin release produces the refractory period and satisfaction.',
+    bridges: [
+      { label: 'Emotional \u2192 Motor', desc: 'The direct arousal-to-action pathway. The ventral striatum\u2019s dopaminergic \u201cwanting\u201d signal drives motor initiation and sustains rhythmic behavior. This pathway becomes increasingly automatic as arousal builds. Anhedonia (blunted reward signaling in depression) directly impairs this pathway, reducing sexual motivation and pleasure.' },
+      { label: 'Memory \u2192 Emotional', desc: 'Fantasy and memory are core amplifiers of arousal. The hippocampus retrieves past pleasurable experiences and the semantic system constructs imagined scenarios, both feeding the amygdala and reward circuits. This loop is why sexual arousal is heavily cognitive in humans \u2014 and why distressing intrusive thoughts or traumatic memories can completely disrupt it. Sexual dysfunction in PTSD often traces to this pathway.' },
+      { label: 'Executive \u2192 Emotional', desc: 'The prefrontal cortex plays a paradoxical role: it initially focuses attention and inhibits distractions (enhancing arousal), but must then \u201clet go\u201d for orgasm to occur. Neuroimaging shows dramatic prefrontal deactivation at climax \u2014 the rational, self-monitoring mind briefly shuts down. Inability to achieve this prefrontal release (due to anxiety, hypervigilance, or excessive self-consciousness) is a common mechanism in orgasmic dysfunction.' }
     ]
   }
 };
